@@ -31,6 +31,7 @@ export function createPointerSession() {
 }
 
 export function beginPointerSession(session, pointerId, mode, point) {
+  if (session.active && session.pointerId !== pointerId) return null;
   session.active = true;
   session.pointerId = pointerId;
   session.mode = mode === "rain" ? "rain" : "wind";
@@ -63,10 +64,18 @@ export function movePointerSession(session, pointerId, point) {
   };
 }
 
-export function endPointerSession(session, pointerId) {
-  if (!session.active || session.pointerId !== pointerId) return false;
+export function resetPointerSession(session) {
+  const wasActive = session.active;
   session.active = false;
   session.pointerId = null;
+  session.lastX = 0;
+  session.lastY = 0;
+  return wasActive;
+}
+
+export function endPointerSession(session, pointerId) {
+  if (!session.active || session.pointerId !== pointerId) return false;
+  resetPointerSession(session);
   return true;
 }
 
