@@ -4,8 +4,8 @@ export function createScheduleState(mode = "today") {
 
 export function visiblePanels(state) {
   return {
-    today: state.mode === "today",
-    week: state.mode === "week"
+    today: state.mode === "today" || state.mode === "both",
+    week: state.mode === "week" || state.mode === "both"
   };
 }
 
@@ -19,6 +19,10 @@ export function hydrateScheduleState(raw) {
     const parsed = JSON.parse(raw);
     if (parsed.mode === "today" || parsed.mode === "week") {
       return createScheduleState(parsed.mode);
+    }
+
+    if (typeof parsed.todayVisible === "boolean" || typeof parsed.weekVisible === "boolean") {
+      return { mode: "both" };
     }
   } catch {}
   return createScheduleState();
