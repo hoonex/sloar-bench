@@ -144,7 +144,7 @@ function drawBranches(model, geometry, palette, scale, growthProgress) {
       const x1 = geometry[offset];
       const y1 = geometry[offset + 1];
       const x2 = geometry[offset + 2];
-      y2 = geometry[offset + 3];
+      const y2 = geometry[offset + 3];
       ctx.moveTo(x1, y1);
       ctx.lineTo(x1 + (x2 - x1) * growth, y1 + (y2 - y1) * growth);
     }
