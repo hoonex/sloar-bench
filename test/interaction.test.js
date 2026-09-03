@@ -7,7 +7,8 @@ import {
   clientToBiomePoint,
   createPointerSession,
   endPointerSession,
-  movePointerSession
+  movePointerSession,
+  resetPointerSession
 } from "../src/interaction.js";
 
 test("CSS pointer coordinates map to simulation space independently of DPR", () => {
@@ -52,4 +53,32 @@ test("unrelated pointer lifecycle events cannot steal or end the active gesture"
   assert.equal(endPointerSession(session, 12), false);
   assert.equal(session.active, true);
   assert.equal(session.pointerId, 11);
+});
+
+
+test("a second pointerdown cannot steal an active gesture", () => {
+  const session = createPointerSession();
+  const first = beginPointerSession(session, 21, "wind", { x: 0.2, y: 0.6 });
+  const second = beginPointerSession(session, 22, "rain", { x: 0.7, y: 0.6 });
+  assert.ok(first);
+  assert.equal(second, null);
+  assert.equal(session.pointerId, 21);
+  assert.equal(session.mode, "wind");
+});
+
+test("forced lifecycle reset clears any active pointer without needing its id", () => {
+  const session = createPointerSession();
+  beginPointerSession(session, 31, "rain", { x: 0.3, y: 0.7 });
+  assert.equal(resetPointerSession(session), true);
+  assert.equal(session.active, false);
+  assert.equal(session.pointerId, null);
+  assert.equal(movePointerSession(session, 31, { x: 0.4, y: 0.7 }), null);
+  assert.equal(resetPointerSession(session), false);
+});
+
+test("coordinate conversion uses the latest CSS rect after layout changes", () => {
+  const first = { left: 100, top: 40, width: 400, height: 200 };
+  const resized = { left: 20, top: 10, width: 200, height: 400 };
+  assert.deepEqual(clientToBiomePoint(first, 300, 140), { x: 0.5, y: 0.5 });
+  assert.deepEqual(clientToBiomePoint(resized, 120, 210), { x: 0.5, y: 0.5 });
 });
