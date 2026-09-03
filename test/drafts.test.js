@@ -23,3 +23,17 @@ test("different drafts do not interfere with each other", async () => {
   assert.equal(store.get("a"), "alpha");
   assert.equal(store.get("b"), "beta");
 });
+
+test("a late save response cannot overwrite a newer edit", async () => {
+  const remote = createRemoteSaver([30, 1]);
+  const store = new DraftStore(remote);
+
+  const olderSave = store.update("note-1", "first");
+  const newerSave = store.update("note-1", "latest");
+
+  await newerSave;
+  assert.equal(store.get("note-1"), "latest");
+
+  await olderSave;
+  assert.equal(store.get("note-1"), "latest");
+});
