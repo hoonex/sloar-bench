@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sloar Bench</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <h1>Schedule</h1>
+    <div class="switcher" role="group" aria-label="Schedule view">
+      <button data-mode="today" aria-pressed="true">Today</button>
+      <button data-mode="week" aria-pressed="false">Week</button>
+    </div>
+
+    <section id="today-panel">
+      <h2>Today</h2>
+      <p>Math · English · Science</p>
+    </section>
+
+    <section id="week-panel" hidden>
+      <h2>Week</h2>
+      <p>Mon · Tue · Wed · Thu · Fri</p>
+    </section>
+  </main>
+  <script type="module" src="./src/app.js"></script>
+</body>
+</html>
