@@ -3,50 +3,111 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Generative Fractal Tree</title>
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#0b120e" />
+  <title>Fractal Grove — Generative Tree Lab</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <main class="app-shell">
-    <section class="stage" aria-label="Tree preview">
-      <canvas id="tree-canvas" width="1200" height="800"></canvas>
-    </section>
-
-    <aside class="controls" aria-label="Tree controls">
-      <header>
-        <p class="eyebrow">Generative study</p>
-        <h1>Fractal Tree</h1>
-      </header>
-
-      <label>Branch angle <output id="angle-value">28°</output>
-        <input id="angle" type="range" min="10" max="55" value="28" />
-      </label>
-      <label>Depth <output id="depth-value">7</output>
-        <input id="depth" type="range" min="2" max="11" value="7" />
-      </label>
-      <label>Branch length <output id="length-value">150</output>
-        <input id="length" type="range" min="70" max="220" value="150" />
-      </label>
-
-      <label>Seed
-        <input id="seed" type="number" value="42" />
-      </label>
-
-      <label>Palette
-        <select id="palette">
-          <option value="forest">Forest</option>
-          <option value="dusk">Dusk</option>
-          <option value="blossom">Blossom</option>
-        </select>
-      </label>
-
-      <div class="toggle-row">
-        <label><input id="leaves" type="checkbox" checked /> Leaves</label>
-        <label><input id="flowers" type="checkbox" /> Flowers</label>
+    <section class="stage" aria-labelledby="stage-title">
+      <div class="stage-topline" aria-hidden="true">
+        <span class="motion-chip"><span class="motion-dot"></span><span id="tree-state">Growing</span></span>
+        <span id="seed-badge" class="seed-badge">Seed 42</span>
       </div>
 
-      <button id="regenerate" type="button">Regenerate</button>
-      <p class="hint">Starter fixture: controls exist, but the rendering/animation model is intentionally incomplete.</p>
+      <canvas
+        id="tree-canvas"
+        width="1200"
+        height="800"
+        role="img"
+        aria-label="Procedural fractal tree preview"
+      >Your browser does not support canvas.</canvas>
+
+      <div class="stage-caption">
+        <div>
+          <p class="stage-kicker">Live generative study</p>
+          <h2 id="stage-title">A tree that never grows the same way twice.</h2>
+        </div>
+        <p id="branch-count" class="branch-count">127 branches</p>
+      </div>
+    </section>
+
+    <aside class="controls" aria-labelledby="controls-title">
+      <header class="controls-header">
+        <p class="eyebrow">Fractal Grove</p>
+        <h1 id="controls-title">Shape the canopy</h1>
+        <p class="intro">Tune the branching rules, then keep a seed to return to exactly the same tree.</p>
+      </header>
+
+      <section class="control-section" aria-labelledby="structure-title">
+        <div class="section-heading">
+          <h2 id="structure-title">Structure</h2>
+          <span>Recursive form</span>
+        </div>
+
+        <label class="range-control" for="angle">
+          <span>Branch angle <output id="angle-value" for="angle">28°</output></span>
+          <input id="angle" type="range" min="10" max="55" value="28" step="1" />
+        </label>
+
+        <label class="range-control" for="depth">
+          <span>Recursion depth <output id="depth-value" for="depth">7</output></span>
+          <input id="depth" type="range" min="2" max="11" value="7" step="1" />
+        </label>
+
+        <label class="range-control" for="length">
+          <span>Branch length <output id="length-value" for="length">150</output></span>
+          <input id="length" type="range" min="70" max="220" value="150" step="5" />
+        </label>
+      </section>
+
+      <section class="control-section" aria-labelledby="style-title">
+        <div class="section-heading">
+          <h2 id="style-title">Variation</h2>
+          <span>Seed & style</span>
+        </div>
+
+        <label class="field-control" for="seed">
+          <span>Seed</span>
+          <input id="seed" type="text" value="42" inputmode="text" autocomplete="off" spellcheck="false" />
+          <small>Same seed + settings = same geometry.</small>
+        </label>
+
+        <label class="field-control" for="palette">
+          <span>Color palette</span>
+          <select id="palette">
+            <option value="forest">Forest floor</option>
+            <option value="dusk">Blue hour</option>
+            <option value="blossom">Spring bloom</option>
+          </select>
+        </label>
+
+        <div class="toggle-grid" role="group" aria-label="Tree overlays">
+          <label class="toggle-card" for="leaves">
+            <span>
+              <strong>Leaves</strong>
+              <small>Canopy foliage</small>
+            </span>
+            <input id="leaves" type="checkbox" checked />
+          </label>
+          <label class="toggle-card" for="flowers">
+            <span>
+              <strong>Flowers</strong>
+              <small>Tip blossoms</small>
+            </span>
+            <input id="flowers" type="checkbox" />
+          </label>
+        </div>
+      </section>
+
+      <button id="regenerate" class="regenerate" type="button">
+        <span aria-hidden="true">↻</span>
+        Regenerate tree
+      </button>
+
+      <p class="hint">The canopy grows on load and continues to move with a soft procedural wind. Reduced-motion preferences switch to a still tree.</p>
+      <p id="tree-announcement" class="sr-only" aria-live="polite"></p>
     </aside>
   </main>
   <script type="module" src="./src/app.js"></script>
