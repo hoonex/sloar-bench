@@ -1,28 +1,38 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sloar Bench</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generative Biome</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <main class="shell">
-    <h1>Schedule</h1>
-    <div class="switcher" role="group" aria-label="Schedule view">
-      <button data-mode="today" aria-pressed="true">Today</button>
-      <button data-mode="week" aria-pressed="false">Week</button>
-    </div>
-
-    <section id="today-panel">
-      <h2>Today</h2>
-      <p>Math · English · Science</p>
+    <section class="stage">
+      <canvas id="biome" width="1200" height="760" aria-label="Procedural meadow preview"></canvas>
     </section>
-
-    <section id="week-panel" hidden>
-      <h2>Week</h2>
-      <p>Mon · Tue · Wed · Thu · Fri</p>
-    </section>
+    <aside class="panel">
+      <h1>Generative Biome</h1>
+      <label>Density <output id="density-value">120</output>
+        <input id="density" type="range" min="30" max="1200" value="120" />
+      </label>
+      <label>Wind <output id="wind-value">0.35</output>
+        <input id="wind" type="range" min="0" max="1" step="0.05" value="0.35" />
+      </label>
+      <label>Seed <input id="seed" type="text" value="meadow-42" /></label>
+      <label>Season
+        <select id="season">
+          <option value="spring">Spring</option>
+          <option value="summer">Summer</option>
+          <option value="autumn">Autumn</option>
+        </select>
+      </label>
+      <div class="actions">
+        <button id="regenerate" type="button">Regenerate</button>
+        <button id="pause" type="button">Pause</button>
+      </div>
+      <p class="hint">Drag across the meadow to preview a local gust.</p>
+    </aside>
   </main>
   <script type="module" src="./src/app.js"></script>
 </body>
