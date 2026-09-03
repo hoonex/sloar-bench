@@ -8,7 +8,7 @@ export class FakeSyncApi {
   }
 
   _key(userId, id) {
-    return `${userId}:${id}`;
+    return JSON.stringify([String(userId), String(id)]);
   }
 
   seed(userId, id, text, version = 1) {
@@ -41,7 +41,7 @@ export class FakeSyncApi {
   }
 
   async mutate(operation) {
-    this.calls.push({ type: "mutate", ...operation });
+    this.calls.push({ ...operation, operationType: operation.type, type: "mutate" });
     await this._wait();
 
     if (this.appliedOps.has(operation.opId)) {
