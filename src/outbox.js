@@ -16,14 +16,22 @@ export class Outbox {
   flush(send) {
     if (this.flushing) return this.flushing;
 
-    this.flushing = (async () => {
+    const drain = async () => {
       while (this.items.length > 0) {
         const operation = this.items[0];
         await send(operation);
-        this.items.shift();
+        if (this.items[0] === operation) {
+          this.items.shift();
+        }
       }
-    })();
+    };
 
-    return this.flushing;
+    const promise = drain().finally(() => {
+      if (this.flushing === promise) {
+        this.flushing = null;
+      }
+    });
+    this.flushing = promise;
+    return promise;
   }
 }
