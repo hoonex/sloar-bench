@@ -1,28 +1,53 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sloar Bench</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generative Fractal Tree</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <main class="shell">
-    <h1>Schedule</h1>
-    <div class="switcher" role="group" aria-label="Schedule view">
-      <button data-mode="today" aria-pressed="true">Today</button>
-      <button data-mode="week" aria-pressed="false">Week</button>
-    </div>
-
-    <section id="today-panel">
-      <h2>Today</h2>
-      <p>Math · English · Science</p>
+  <main class="app-shell">
+    <section class="stage" aria-label="Tree preview">
+      <canvas id="tree-canvas" width="1200" height="800"></canvas>
     </section>
 
-    <section id="week-panel" hidden>
-      <h2>Week</h2>
-      <p>Mon · Tue · Wed · Thu · Fri</p>
-    </section>
+    <aside class="controls" aria-label="Tree controls">
+      <header>
+        <p class="eyebrow">Generative study</p>
+        <h1>Fractal Tree</h1>
+      </header>
+
+      <label>Branch angle <output id="angle-value">28°</output>
+        <input id="angle" type="range" min="10" max="55" value="28" />
+      </label>
+      <label>Depth <output id="depth-value">7</output>
+        <input id="depth" type="range" min="2" max="11" value="7" />
+      </label>
+      <label>Branch length <output id="length-value">150</output>
+        <input id="length" type="range" min="70" max="220" value="150" />
+      </label>
+
+      <label>Seed
+        <input id="seed" type="number" value="42" />
+      </label>
+
+      <label>Palette
+        <select id="palette">
+          <option value="forest">Forest</option>
+          <option value="dusk">Dusk</option>
+          <option value="blossom">Blossom</option>
+        </select>
+      </label>
+
+      <div class="toggle-row">
+        <label><input id="leaves" type="checkbox" checked /> Leaves</label>
+        <label><input id="flowers" type="checkbox" /> Flowers</label>
+      </div>
+
+      <button id="regenerate" type="button">Regenerate</button>
+      <p class="hint">Starter fixture: controls exist, but the rendering/animation model is intentionally incomplete.</p>
+    </aside>
   </main>
   <script type="module" src="./src/app.js"></script>
 </body>

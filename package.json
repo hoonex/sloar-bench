@@ -1,8 +1,9 @@
 {
-  "name": "sloar-bench",
+  "name": "sloar-bench-fractal-tree",
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "start": "node scripts/serve.mjs"
   }
 }
