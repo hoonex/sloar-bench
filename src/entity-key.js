@@ -1,3 +1,3 @@
 export function entityKey(userId, id) {
-  return String(id);
+  return JSON.stringify([String(userId), String(id)]);
 }
