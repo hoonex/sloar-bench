@@ -16,6 +16,12 @@ export class ReadCache {
     return this.keyEpochs.get(key) ?? 0;
   }
 
+  _bumpKey(key) {
+    const next = this._keyEpoch(key) + 1;
+    this.keyEpochs.set(key, next);
+    return next;
+  }
+
   token(userId, id) {
     const key = entityKey(userId, id);
     return {
@@ -40,7 +46,16 @@ export class ReadCache {
   }
 
   set(userId, id, value) {
-    this.values.set(entityKey(userId, id), value);
+    const key = entityKey(userId, id);
+    this._bumpKey(key);
+    this.inflight.delete(key);
+    this.values.set(key, value);
+  }
+
+  supersede(userId, id) {
+    const key = entityKey(userId, id);
+    this._bumpKey(key);
+    this.inflight.delete(key);
   }
 
   load(userId, id, loader, { shouldStore } = {}) {
@@ -75,9 +90,9 @@ export class ReadCache {
 
   invalidate(userId, id) {
     const key = entityKey(userId, id);
+    this._bumpKey(key);
     this.values.delete(key);
     this.inflight.delete(key);
-    this.keyEpochs.set(key, this._keyEpoch(key) + 1);
   }
 
   invalidateUser(userId) {

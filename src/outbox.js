@@ -17,26 +17,27 @@ export class Outbox {
     if (this.flushing) return this.flushing;
 
     const run = (async () => {
-      while (this.items.length > 0) {
-        const operation = this.items[0];
-        await send(operation);
-        if (this.items[0] === operation) {
-          this.items.shift();
+      await Promise.resolve();
+      try {
+        while (true) {
+          while (this.items.length > 0) {
+            const operation = this.items[0];
+            const result = await send(operation);
+            if (result === false) return;
+            if (this.items[0] === operation) {
+              this.items.shift();
+            }
+          }
+
+          await Promise.resolve();
+          if (this.items.length === 0) return;
         }
+      } finally {
+        this.flushing = null;
       }
     })();
 
     this.flushing = run;
-    run.then(
-      () => {
-        if (this.flushing !== run) return;
-        this.flushing = null;
-        if (this.items.length > 0) void this.flush(send).catch(() => {});
-      },
-      () => {
-        if (this.flushing === run) this.flushing = null;
-      }
-    );
     return run;
   }
 }

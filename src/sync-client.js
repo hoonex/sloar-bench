@@ -20,13 +20,150 @@ export class SyncClient {
     this.cache = new ReadCache();
     this.outbox = new Outbox();
     this.local = new Map();
+    this.authoritative = new Map();
+    this.versions = new Map();
+    this.deletedVersions = new Map();
+    this.revisions = new Map();
+    this.userGenerations = new Map();
+    this.keyGenerations = new Map();
+    this.operationMeta = new WeakMap();
     this.online = true;
     this.opCounter = 0;
     this.clientId = makeClientId();
-    this.latestMutationSeq = new Map();
-    this.pendingMutations = new Map();
-    this.serverState = new Map();
-    this.operationMeta = new WeakMap();
+  }
+
+  _userGeneration(userId) {
+    return this.userGenerations.get(String(userId)) ?? 0;
+  }
+
+  _bumpUserGeneration(userId) {
+    const normalized = String(userId);
+    const next = this._userGeneration(normalized) + 1;
+    this.userGenerations.set(normalized, next);
+    return next;
+  }
+
+  _keyGeneration(key) {
+    return this.keyGenerations.get(key) ?? 0;
+  }
+
+  _bumpKeyGeneration(key) {
+    const next = this._keyGeneration(key) + 1;
+    this.keyGenerations.set(key, next);
+    return next;
+  }
+
+  _revision(key) {
+    return this.revisions.get(key) ?? 0;
+  }
+
+  _touch(key) {
+    const next = this._revision(key) + 1;
+    this.revisions.set(key, next);
+    return next;
+  }
+
+  _metaCurrent(operation, meta = this.operationMeta.get(operation)) {
+    if (!meta) return false;
+    const key = entityKey(operation.userId, operation.id);
+    return this._userGeneration(operation.userId) === meta.userGeneration
+      && this._keyGeneration(key) === meta.keyGeneration;
+  }
+
+  _pendingFor(userId, id) {
+    const normalizedUser = String(userId);
+    const normalizedId = String(id);
+    return this.outbox.pending().filter((operation) => {
+      if (String(operation.userId) !== normalizedUser || String(operation.id) !== normalizedId) {
+        return false;
+      }
+      const meta = this.operationMeta.get(operation);
+      return meta?.status !== "acked" && this._metaCurrent(operation, meta);
+    });
+  }
+
+  _recompute(userId, id) {
+    const key = entityKey(userId, id);
+    const pending = this._pendingFor(userId, id);
+    const hasBase = this.authoritative.has(key) || this.cache.has(userId, id);
+
+    if (!hasBase && pending.length === 0) {
+      this.local.delete(key);
+      return null;
+    }
+
+    let value = this.authoritative.has(key)
+      ? this.authoritative.get(key)
+      : this.cache.get(userId, id);
+    const version = this.versions.get(key) ?? value?.version ?? 0;
+
+    for (const operation of pending) {
+      if (operation.type === "delete") {
+        value = null;
+      } else {
+        value = {
+          id: operation.id,
+          text: operation.text,
+          deleted: false,
+          version
+        };
+      }
+    }
+
+    this.local.set(key, value);
+    return value;
+  }
+
+  _wouldAcceptAuthoritative(userId, id, rawValue) {
+    const key = entityKey(userId, id);
+    const incomingVersion = Number.isFinite(rawValue?.version) ? rawValue.version : 0;
+    const knownVersion = this.versions.get(key);
+    const deletedVersion = this.deletedVersions.get(key);
+    const incomingDeleted = rawValue === null || rawValue?.deleted === true;
+
+    if (knownVersion !== undefined && incomingVersion < knownVersion) return false;
+    if (!incomingDeleted && deletedVersion !== undefined && incomingVersion <= deletedVersion) return false;
+    if (knownVersion !== undefined && incomingVersion === knownVersion && this.authoritative.has(key)) {
+      return false;
+    }
+    return true;
+  }
+
+  _acceptAuthoritative(userId, id, rawValue) {
+    if (!this._wouldAcceptAuthoritative(userId, id, rawValue)) return false;
+
+    const key = entityKey(userId, id);
+    const incomingVersion = Number.isFinite(rawValue?.version) ? rawValue.version : 0;
+    const deletedVersion = this.deletedVersions.get(key);
+    const incomingDeleted = rawValue === null || rawValue?.deleted === true;
+    const value = incomingDeleted ? null : {
+      ...rawValue,
+      id: rawValue?.id ?? id,
+      deleted: false,
+      version: incomingVersion
+    };
+
+    this.versions.set(key, incomingVersion);
+    if (incomingDeleted) {
+      this.deletedVersions.set(key, Math.max(deletedVersion ?? -1, incomingVersion));
+    }
+    this.authoritative.set(key, value);
+    this.cache.set(userId, id, value);
+    this._touch(key);
+    return true;
+  }
+
+  _invalidateUserState(userId) {
+    const prefix = userKeyPrefix(userId);
+    this._bumpUserGeneration(userId);
+    this.cache.invalidateUser(userId);
+
+    for (const key of this.local.keys()) {
+      if (key.startsWith(prefix)) this.local.delete(key);
+    }
+    for (const key of this.authoritative.keys()) {
+      if (key.startsWith(prefix)) this.authoritative.delete(key);
+    }
   }
 
   switchUser(userId) {
@@ -35,33 +172,24 @@ export class SyncClient {
 
   logout() {
     const previous = this.session.logout();
-    if (previous !== null) this._invalidateUser(previous);
+    if (previous !== null) this._invalidateUserState(previous);
   }
 
   invalidate(id) {
     const userId = this.session.userId;
     if (userId === null) return;
+
     const key = entityKey(userId, id);
+    this._bumpKeyGeneration(key);
     this.cache.invalidate(userId, id);
     this.local.delete(key);
-    this.serverState.delete(key);
-    this.latestMutationSeq.delete(key);
-    this.pendingMutations.delete(key);
+    this.authoritative.delete(key);
+    this._touch(key);
   }
 
   invalidateUser(userId = this.session.userId) {
     if (userId === null) return;
-    this._invalidateUser(String(userId));
-  }
-
-  _invalidateUser(userId) {
-    const prefix = userKeyPrefix(userId);
-    this.cache.invalidateUser(userId);
-    for (const map of [this.local, this.serverState, this.latestMutationSeq, this.pendingMutations]) {
-      for (const key of map.keys()) {
-        if (key.startsWith(prefix)) map.delete(key);
-      }
-    }
+    this._invalidateUserState(String(userId));
   }
 
   setOnline(online) {
@@ -77,112 +205,59 @@ export class SyncClient {
     return null;
   }
 
-  _pendingCount(key) {
-    return this.pendingMutations.get(key) ?? 0;
-  }
-
-  _incrementPending(key) {
-    this.pendingMutations.set(key, this._pendingCount(key) + 1);
-  }
-
-  _decrementPending(key) {
-    const count = this._pendingCount(key);
-    if (count <= 1) this.pendingMutations.delete(key);
-    else this.pendingMutations.set(key, count - 1);
-  }
-
-  _remoteVersion(value) {
-    const version = value?.version;
-    return Number.isFinite(version) ? version : null;
-  }
-
-  _normalizedRemote(value) {
-    if (value === null || value?.deleted) return null;
-    return { ...value, deleted: false };
-  }
-
-  _isStaleRemote(key, value) {
-    const current = this.serverState.get(key);
-    if (!current) return false;
-
-    const version = this._remoteVersion(value);
-    if (version === null) return current.version !== null;
-    if (current.version === null) return false;
-    if (version < current.version) return true;
-    if (version === current.version && current.deleted && !value?.deleted) return true;
-    return false;
-  }
-
-  _recordRemote(userId, id, value, { writeLocal = true } = {}) {
-    const key = entityKey(userId, id);
-    if (this._isStaleRemote(key, value)) return false;
-
-    const normalized = this._normalizedRemote(value);
-    const version = this._remoteVersion(value);
-    const current = this.serverState.get(key);
-    if (!current || current.version === null || version === null || version >= current.version) {
-      this.serverState.set(key, { version, deleted: normalized === null });
-    }
-    this.cache.set(userId, id, normalized);
-    if (writeLocal) this.local.set(key, normalized);
-    return true;
-  }
-
   async load(id) {
-    const session = this.session.snapshot();
-    const { userId } = session;
+    const snapshot = this.session.snapshot();
+    const userId = snapshot.userId;
     if (userId === null) throw new Error("not signed in");
 
     const key = entityKey(userId, id);
-    if (this._pendingCount(key) > 0 && this.local.has(key)) {
+    if (this._pendingFor(userId, id).length > 0 && this.local.has(key)) {
       return this.local.get(key);
     }
 
+    const userGeneration = this._userGeneration(userId);
+    const keyGeneration = this._keyGeneration(key);
+    const revision = this._revision(key);
     const cacheToken = this.cache.token(userId, id);
-    const mutationSeq = this.latestMutationSeq.get(key) ?? 0;
+    const isStillValid = (loaded) =>
+      this.session.userId === userId
+      && this.session.epoch === snapshot.epoch
+      && this._userGeneration(userId) === userGeneration
+      && this._keyGeneration(key) === keyGeneration
+      && this._revision(key) === revision
+      && this.cache.isTokenCurrent(cacheToken)
+      && this._wouldAcceptAuthoritative(userId, id, loaded);
+
     const value = await this.cache.load(
       userId,
       id,
       () => this.api.fetchDoc({ userId, id }),
-      {
-        shouldStore: (loaded) => {
-          const sameSession = this.session.userId === userId && this.session.epoch === session.epoch;
-          const sameMutation = (this.latestMutationSeq.get(key) ?? 0) === mutationSeq;
-          return sameSession
-            && sameMutation
-            && this.cache.isTokenCurrent(cacheToken)
-            && !this._isStaleRemote(key, loaded);
-        }
-      }
+      { shouldStore: isStillValid }
     );
 
-    const sameSession = this.session.userId === userId && this.session.epoch === session.epoch;
-    const sameMutation = (this.latestMutationSeq.get(key) ?? 0) === mutationSeq;
-    if (!sameSession || !sameMutation || !this.cache.isTokenCurrent(cacheToken) || this._isStaleRemote(key, value)) {
-      if (sameSession) return this.get(id);
-      return value;
-    }
+    const sameSession = this.session.userId === userId && this.session.epoch === snapshot.epoch;
+    if (!sameSession) return value;
+    if (!isStillValid(value)) return this.get(id);
 
-    this._recordRemote(userId, id, value);
+    this._acceptAuthoritative(userId, id, value);
+    this._recompute(userId, id);
     return this.get(id);
   }
 
   _newOperation(type, userId, id, extra = {}) {
     const key = entityKey(userId, id);
-    const seq = ++this.opCounter;
     const operation = {
-      opId: `${this.clientId}:${seq}`,
+      opId: `${this.clientId}:${++this.opCounter}`,
       type,
       userId,
       id,
       ...extra
     };
     this.operationMeta.set(operation, {
-      seq,
-      cacheToken: this.cache.token(userId, id)
+      userGeneration: this._userGeneration(userId),
+      keyGeneration: this._keyGeneration(key),
+      status: "pending"
     });
-    this.latestMutationSeq.set(key, seq);
-    this._incrementPending(key);
     this.outbox.enqueue(operation);
     return operation;
   }
@@ -193,14 +268,10 @@ export class SyncClient {
 
     const key = entityKey(userId, id);
     const previous = this.get(id);
-    const optimistic = {
-      id,
-      text,
-      deleted: false,
-      version: previous?.version ?? 0
-    };
-    this.local.set(key, optimistic);
     this._newOperation("edit", userId, id, { text, previous });
+    this.cache.supersede(userId, id);
+    this._touch(key);
+    const optimistic = this._recompute(userId, id);
     if (this.online) void this.flush().catch(() => {});
     return optimistic;
   }
@@ -211,46 +282,32 @@ export class SyncClient {
 
     const key = entityKey(userId, id);
     const previous = this.get(id);
-    this.local.set(key, null);
     this._newOperation("delete", userId, id, { previous });
-    if (this.online) void this.flush().catch(() => {});
-  }
-
-  _restoreAuthoritative(operation, key, meta) {
-    if (!meta || !this.cache.isTokenCurrent(meta.cacheToken)) return;
-    if (this.latestMutationSeq.get(key) !== meta.seq) return;
-    if (this.cache.has(operation.userId, operation.id)) {
-      this.local.set(key, this.cache.get(operation.userId, operation.id));
-    } else {
-      this.local.set(key, null);
-    }
+    this.cache.supersede(userId, id);
+    this._touch(key);
+    this._recompute(userId, id);
   }
 
   flush() {
     if (!this.online) return Promise.resolve();
 
     return this.outbox.flush(async (operation) => {
-      const key = entityKey(operation.userId, operation.id);
+      if (!this.online) return false;
+
       const meta = this.operationMeta.get(operation);
       try {
         const saved = await this.api.mutate(operation);
-        const tokenCurrent = Boolean(meta && this.cache.isTokenCurrent(meta.cacheToken));
-        let accepted = false;
-        if (tokenCurrent) {
-          accepted = this._recordRemote(operation.userId, operation.id, saved, { writeLocal: false });
-        }
+        if (meta) meta.status = "acked";
 
-        this._decrementPending(key);
-        if (tokenCurrent && this.latestMutationSeq.get(key) === meta.seq && this._pendingCount(key) === 0) {
-          if (accepted) {
-            this.local.set(key, this._normalizedRemote(saved));
-          } else if (this.cache.has(operation.userId, operation.id)) {
-            this.local.set(key, this.cache.get(operation.userId, operation.id));
-          }
+        if (this._metaCurrent(operation, meta)) {
+          this._acceptAuthoritative(operation.userId, operation.id, saved);
+          this._recompute(operation.userId, operation.id);
         }
         return saved;
       } catch (error) {
-        this._restoreAuthoritative(operation, key, meta);
+        if (this._metaCurrent(operation, meta)) {
+          this._recompute(operation.userId, operation.id);
+        }
         throw error;
       }
     });
@@ -262,18 +319,11 @@ export class SyncClient {
   }
 
   applyPush(event) {
-    const currentUserId = this.session.userId;
-    if (currentUserId === null || String(event.userId) !== currentUserId) return;
+    const userId = this.session.userId;
+    if (userId === null || String(event.userId) !== userId) return;
 
-    const key = entityKey(currentUserId, event.id);
-    const current = this.serverState.get(key);
-    const version = this._remoteVersion(event);
-    if (current?.version !== null && current?.version !== undefined && version !== null && version <= current.version) {
-      return;
+    if (this._acceptAuthoritative(userId, event.id, event)) {
+      this._recompute(userId, event.id);
     }
-    if (this._isStaleRemote(key, event)) return;
-
-    const writeLocal = this._pendingCount(key) === 0;
-    this._recordRemote(currentUserId, event.id, event, { writeLocal });
   }
 }
