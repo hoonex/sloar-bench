@@ -261,7 +261,6 @@ test("density adjustment changes population while preserving surviving plant geo
   for (const [id, plant] of preserved) assert.equal(world.plants.find((candidate) => candidate.id === id), plant);
 });
 
-
 test("transient visual/interaction effects stay bounded under dense input streams", () => {
   const world = createBiome({ seed: "bounded-effects", density: 120 });
   for (let i = 0; i < 80; i += 1) {
@@ -293,4 +292,65 @@ test("options clamp to product limits", () => {
   assert.equal(options.wind, 1);
   assert.equal(options.season, "spring");
   assert.equal(options.timeOfDay, 24);
+});
+
+test("pause preserves sub-step simulation carry while paused wall time is ignored", () => {
+  const world = createBiome({ seed: "pause-carry", density: 80 });
+  advanceBiome(world, FIXED_DT / 2);
+  const carry = world.accumulator;
+  assert.ok(carry > 0 && carry < FIXED_DT);
+  setPaused(world, true);
+  advanceBiome(world, 7);
+  assert.equal(world.accumulator, carry);
+  assert.equal(world.tick, 0);
+  setPaused(world, false);
+  advanceBiome(world, FIXED_DT / 2);
+  assert.equal(world.tick, 1);
+  assert.equal(world.time, FIXED_DT);
+});
+
+test("bounded stalls report dropped wall time explicitly", () => {
+  const world = createBiome({ density: 80 });
+  const result = advanceBiome(world, 1.25);
+  assert.equal(result.acceptedDelta, MAX_FRAME_DELTA);
+  assert.equal(result.droppedDelta, 1);
+});
+
+test("gust vector preserves gesture direction as a local two-dimensional field", async () => {
+  const { gustVectorAt } = await import("../src/simulation.js");
+  const world = createBiome({ wind: 0, density: 80 });
+  applyGust(world, 0.5, 0.7, 1.1, 0, -1);
+  const near = gustVectorAt(world, 0.5, 0.7);
+  const far = gustVectorAt(world, 0.05, 0.05);
+  assert.ok(near.y < -0.9);
+  assert.ok(Math.abs(near.x) < 1e-12);
+  assert.deepEqual(far, { x: 0, y: 0 });
+});
+
+test("zero-valued options clamp rather than falling through truthy defaults", () => {
+  const options = normalizeOptions({ density: 0, wind: 0, timeOfDay: 0 });
+  assert.equal(options.density, 60);
+  assert.equal(options.wind, 0);
+  assert.equal(options.timeOfDay, 0);
+});
+
+test("snapshot continuation preserves partial fixed-step carry", () => {
+  const world = createBiome({ seed: "carry-restore", density: 90 });
+  advanceBiome(world, FIXED_DT * 0.4);
+  const restored = loadSnapshot(saveSnapshot(world));
+  advanceBiome(world, FIXED_DT * 0.6);
+  advanceBiome(restored, FIXED_DT * 0.6);
+  assert.deepEqual(saveSnapshot(restored), saveSnapshot(world));
+  assert.equal(world.tick, 1);
+});
+
+test("snapshot rejects deterministic identity and clock corruption", () => {
+  const snapshot = saveSnapshot(createBiome({ seed: "integrity", density: 90 }));
+  const wrongSeed = structuredClone(snapshot);
+  wrongSeed.seedHash = (wrongSeed.seedHash + 1) >>> 0;
+  assert.throws(() => loadSnapshot(wrongSeed), /deterministic identity/);
+
+  const wrongClock = structuredClone(snapshot);
+  wrongClock.time = FIXED_DT;
+  assert.throws(() => loadSnapshot(wrongClock), /simulation clock/);
 });
