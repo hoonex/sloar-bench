@@ -8,9 +8,19 @@ const SEASONS = new Set(["spring", "summer", "autumn", "winter"]);
 const SPECIES = ["grass", "flower", "stem"];
 const MAX_GUSTS = 24;
 const MAX_RAIN_BURSTS = 20;
+const RANDOM_MODEL = "stateless-seeded-v1";
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
+}
+
+function finiteNumber(value, fallback) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function finiteInteger(value, fallback) {
+  return Math.round(finiteNumber(value, fallback));
 }
 
 export function hashSeed(seed) {
@@ -55,10 +65,10 @@ function clonePlain(value) {
 export function normalizeOptions(options = {}) {
   return {
     seed: String(options.seed ?? "meadow-42"),
-    density: clamp(Math.round(Number(options.density ?? 1500) || 1500), 60, 2400),
-    wind: clamp(Number(options.wind ?? 0.34) || 0, 0, 1),
+    density: clamp(finiteInteger(options.density, 1500), 60, 2400),
+    wind: clamp(finiteNumber(options.wind, 0.34), 0, 1),
     season: SEASONS.has(options.season) ? options.season : "spring",
-    timeOfDay: clamp(Number(options.timeOfDay ?? 15.5) || 0, 0, 24)
+    timeOfDay: clamp(finiteNumber(options.timeOfDay, 15.5), 0, 24)
   };
 }
 
@@ -70,12 +80,15 @@ function createPlant(seedHash, index) {
   const perspective = 0.58 + y * 0.58;
   const speciesScale = species === "grass" ? 0.82 + random() * 0.55 : species === "flower" ? 0.8 + random() * 0.45 : 0.95 + random() * 0.5;
   const initialGrowth = 0.035 + random() * 0.09;
+  const x = random();
+  const soilIndex = Math.floor(y * MOISTURE_HEIGHT) * MOISTURE_WIDTH + Math.floor(x * MOISTURE_WIDTH);
 
   return {
     id: index,
     species,
-    x: random(),
+    x,
     y,
+    soilIndex,
     baseHeight: (0.035 + random() * 0.092) * perspective * speciesScale,
     width: 0.55 + random() * 1.45,
     phase: random() * Math.PI * 2,
@@ -130,7 +143,8 @@ export function createBiome(options = {}) {
   plants.sort((a, b) => a.y - b.y || a.id - b.id);
 
   return {
-    version: 2,
+    version: 3,
+    randomModel: RANDOM_MODEL,
     options: normalized,
     seedHash,
     tick: 0,
@@ -196,7 +210,7 @@ function updatePlants(world, dt) {
   const seasonGrowth = world.options.season === "spring" ? 1.08 : world.options.season === "summer" ? 0.96 : world.options.season === "autumn" ? 0.75 : 0.48;
   for (let i = 0; i < world.plants.length; i += 1) {
     const plant = world.plants[i];
-    const localMoisture = moistureAt(world, plant.x, plant.y);
+    const localMoisture = world.moisture.cells[plant.soilIndex];
     const targetVigor = clamp(0.2 + localMoisture * 1.18, 0.18, 1.16);
     plant.vigor += (targetVigor - plant.vigor) * Math.min(1, dt * 0.92);
     const speciesRate = plant.species === "grass" ? 0.3 : plant.species === "flower" ? 0.245 : 0.215;
@@ -246,10 +260,12 @@ function simulateFixedStep(world) {
 }
 
 export function advanceBiome(world, frameDeltaSeconds, maxFrameDelta = MAX_FRAME_DELTA) {
-  const rawDelta = Math.max(0, Number(frameDeltaSeconds) || 0);
-  if (world.paused || rawDelta === 0) return { acceptedDelta: 0, steps: 0 };
+  const rawDelta = Math.max(0, finiteNumber(frameDeltaSeconds, 0));
+  if (world.paused || rawDelta === 0) return { acceptedDelta: 0, droppedDelta: 0, steps: 0 };
 
-  const acceptedDelta = Math.min(rawDelta, maxFrameDelta);
+  const safeMaxDelta = Math.max(0, finiteNumber(maxFrameDelta, MAX_FRAME_DELTA));
+  const acceptedDelta = Math.min(rawDelta, safeMaxDelta);
+  const droppedDelta = rawDelta - acceptedDelta;
   world.accumulator += acceptedDelta;
   const steps = Math.floor((world.accumulator + EPSILON) / FIXED_DT);
   if (steps > 0) {
@@ -257,7 +273,7 @@ export function advanceBiome(world, frameDeltaSeconds, maxFrameDelta = MAX_FRAME
     if (Math.abs(world.accumulator) < EPSILON) world.accumulator = 0;
     for (let i = 0; i < steps; i += 1) simulateFixedStep(world);
   }
-  return { acceptedDelta, steps };
+  return { acceptedDelta, droppedDelta, steps };
 }
 
 export function stepBiome(world, dtSeconds) {
@@ -267,12 +283,11 @@ export function stepBiome(world, dtSeconds) {
 
 export function setPaused(world, paused) {
   world.paused = Boolean(paused);
-  world.accumulator = 0;
   return world;
 }
 
 export function setWind(world, wind) {
-  world.options.wind = clamp(Number(wind) || 0, 0, 1);
+  world.options.wind = clamp(finiteNumber(wind, world.options.wind), 0, 1);
   return world;
 }
 
@@ -282,12 +297,12 @@ export function setSeason(world, season) {
 }
 
 export function setTimeOfDay(world, timeOfDay) {
-  world.options.timeOfDay = clamp(Number(timeOfDay) || 0, 0, 24);
+  world.options.timeOfDay = clamp(finiteNumber(timeOfDay, world.options.timeOfDay), 0, 24);
   return world;
 }
 
 export function setDensity(world, density) {
-  const target = clamp(Math.round(Number(density) || world.options.density), 60, 2400);
+  const target = clamp(finiteInteger(density, world.options.density), 60, 2400);
   if (target === world.options.density) return world;
   const byId = new Map(world.plants.map((plant) => [plant.id, plant]));
   const plants = new Array(target);
@@ -299,14 +314,14 @@ export function setDensity(world, density) {
 }
 
 export function applyGust(world, x, y, strength = 1, directionX = 1, directionY = 0) {
-  const px = clamp(Number(x) || 0, 0, 1);
-  const py = clamp(Number(y) || 0, 0, 1);
-  const rawX = Number(directionX) || 0;
-  const rawY = Number(directionY) || 0;
+  const px = clamp(finiteNumber(x, 0), 0, 1);
+  const py = clamp(finiteNumber(y, 0), 0, 1);
+  const rawX = finiteNumber(directionX, 0);
+  const rawY = finiteNumber(directionY, 0);
   const magnitude = Math.hypot(rawX, rawY);
   const dirX = magnitude > 1e-6 ? rawX / magnitude : 1;
   const dirY = magnitude > 1e-6 ? rawY / magnitude : 0;
-  const normalizedStrength = clamp(Number(strength) || 0, 0, 1.5);
+  const normalizedStrength = clamp(finiteNumber(strength, 0), 0, 1.5);
   const id = world.eventSerial;
   world.eventSerial += 1;
   if (world.gusts.length >= MAX_GUSTS) world.gusts.splice(0, world.gusts.length - MAX_GUSTS + 1);
@@ -333,29 +348,46 @@ function smoothFalloff(distance, radius) {
   return t * t * (3 - 2 * t);
 }
 
-export function gustInfluenceAt(world, x, y) {
-  let influence = 0;
+export function gustVectorAt(world, x, y) {
+  let influenceX = 0;
+  let influenceY = 0;
   for (let i = 0; i < world.gusts.length; i += 1) {
     const gust = world.gusts[i];
-    const distance = Math.hypot(x - gust.x, y - gust.y);
-    const falloff = smoothFalloff(distance, gust.radius);
-    if (falloff === 0) continue;
-    const directional = gust.dirX * 0.78 + Math.sin(gust.age * 8 + gust.id * 0.91) * 0.09;
-    influence += directional * gust.strength * falloff * 0.72;
+    const dx = x - gust.x;
+    const dy = y - gust.y;
+    const radiusSquared = gust.radius * gust.radius;
+    const distanceSquared = dx * dx + dy * dy;
+    if (distanceSquared >= radiusSquared) continue;
+    const falloff = smoothFalloff(Math.sqrt(distanceSquared), gust.radius);
+    const pulse = 0.94 + Math.sin(gust.age * 8 + gust.id * 0.91) * 0.06;
+    const strength = gust.strength * falloff * pulse;
+    influenceX += gust.dirX * strength;
+    influenceY += gust.dirY * strength;
   }
-  return clamp(influence, -0.92, 0.92);
+  return {
+    x: clamp(influenceX, -1.25, 1.25),
+    y: clamp(influenceY, -1.25, 1.25)
+  };
+}
+
+export function gustInfluenceAt(world, x, y) {
+  return clamp(gustVectorAt(world, x, y).x * 0.78, -0.92, 0.92);
 }
 
 export function applyRain(world, x, y, intensity = 1, radius = 0.105) {
-  const px = clamp(Number(x) || 0, 0, 1);
-  const py = clamp(Number(y) || 0, 0, 1);
-  const normalizedIntensity = clamp(Number(intensity) || 0, 0, 1.5);
-  const normalizedRadius = clamp(Number(radius) || 0.105, 0.035, 0.28);
+  const px = clamp(finiteNumber(x, 0), 0, 1);
+  const py = clamp(finiteNumber(y, 0), 0, 1);
+  const normalizedIntensity = clamp(finiteNumber(intensity, 0), 0, 1.5);
+  const normalizedRadius = clamp(finiteNumber(radius, 0.105), 0.035, 0.28);
   const grid = world.moisture;
+  const minX = clamp(Math.floor((px - normalizedRadius) * grid.width), 0, grid.width - 1);
+  const maxX = clamp(Math.floor((px + normalizedRadius) * grid.width), 0, grid.width - 1);
+  const minY = clamp(Math.floor((py - normalizedRadius) * grid.height), 0, grid.height - 1);
+  const maxY = clamp(Math.floor((py + normalizedRadius) * grid.height), 0, grid.height - 1);
 
-  for (let cy = 0; cy < grid.height; cy += 1) {
+  for (let cy = minY; cy <= maxY; cy += 1) {
     const gy = (cy + 0.5) / grid.height;
-    for (let cx = 0; cx < grid.width; cx += 1) {
+    for (let cx = minX; cx <= maxX; cx += 1) {
       const gx = (cx + 0.5) / grid.width;
       const distance = Math.hypot(gx - px, gy - py);
       const falloff = smoothFalloff(distance, normalizedRadius);
@@ -376,7 +408,22 @@ export function plantBend(world, plant) {
   const ambientA = Math.sin(world.time * plant.frequency * 1.65 + plant.phase + plant.x * 3.4);
   const ambientB = Math.sin(world.time * 0.47 + plant.phase * 0.43 + plant.y * 5.2);
   const ambient = (ambientA * 0.68 + ambientB * 0.32) * world.options.wind * 0.19;
-  const local = gustInfluenceAt(world, plant.x, plant.y);
+  let localX = 0;
+  let localY = 0;
+  for (let i = 0; i < world.gusts.length; i += 1) {
+    const gust = world.gusts[i];
+    const dx = plant.x - gust.x;
+    const dy = plant.y - gust.y;
+    const distanceSquared = dx * dx + dy * dy;
+    const radiusSquared = gust.radius * gust.radius;
+    if (distanceSquared >= radiusSquared) continue;
+    const falloff = smoothFalloff(Math.sqrt(distanceSquared), gust.radius);
+    const pulse = 0.94 + Math.sin(gust.age * 8 + gust.id * 0.91) * 0.06;
+    const strength = gust.strength * falloff * pulse;
+    localX += gust.dirX * strength;
+    localY += gust.dirY * strength;
+  }
+  const local = clamp(localX, -1.25, 1.25) * 0.78 + clamp(localY, -1.25, 1.25) * plant.lean * 0.2;
   return plant.lean * 0.08 + ambient + local;
 }
 
@@ -404,8 +451,9 @@ export function resetBiome(world) {
 
 export function saveSnapshot(world) {
   return {
-    snapshotVersion: 2,
+    snapshotVersion: 3,
     version: world.version,
+    randomModel: world.randomModel,
     options: { ...world.options },
     seedHash: world.seedHash,
     tick: world.tick,
@@ -428,27 +476,46 @@ export function saveSnapshot(world) {
 
 export function loadSnapshot(snapshot) {
   const source = clonePlain(snapshot);
-  if (!source || source.snapshotVersion !== 2 || !source.options || !Array.isArray(source.plants)) {
+  if (!source || source.snapshotVersion !== 3 || !source.options || !Array.isArray(source.plants)) {
     throw new Error("Unsupported or invalid biome snapshot");
   }
   const options = normalizeOptions(source.options);
+  const canonicalSeedHash = hashSeed(options.seed);
+  const tick = Math.max(0, Math.floor(finiteNumber(source.tick, 0)));
+  const expectedTime = tick * FIXED_DT;
+  const snapshotTime = finiteNumber(source.time, expectedTime);
+  const accumulator = finiteNumber(source.accumulator, 0);
   const moistureCells = Float64Array.from(source.moisture?.cells ?? []);
-  if (source.moisture?.width !== MOISTURE_WIDTH || source.moisture?.height !== MOISTURE_HEIGHT || moistureCells.length !== MOISTURE_WIDTH * MOISTURE_HEIGHT) {
+  if (source.randomModel !== RANDOM_MODEL || (source.seedHash >>> 0) !== canonicalSeedHash) {
+    throw new Error("Snapshot deterministic identity is invalid");
+  }
+  if (Math.abs(snapshotTime - expectedTime) > EPSILON || accumulator < 0 || accumulator >= FIXED_DT + EPSILON) {
+    throw new Error("Snapshot simulation clock is invalid");
+  }
+  if (source.moisture?.width !== MOISTURE_WIDTH || source.moisture?.height !== MOISTURE_HEIGHT || moistureCells.length !== MOISTURE_WIDTH * MOISTURE_HEIGHT || !Array.from(moistureCells).every(Number.isFinite)) {
     throw new Error("Snapshot moisture grid is invalid");
   }
-  if (source.plants.length !== options.density || source.plants.some((plant) => !SPECIES.includes(plant.species))) {
+  if (source.plants.length !== options.density || source.plants.some((plant) => {
+    if (!SPECIES.includes(plant.species) || !Number.isFinite(plant.x) || !Number.isFinite(plant.y) || !Number.isFinite(plant.growth)) return true;
+    const expectedSoilIndex = moistureIndex({ width: MOISTURE_WIDTH, height: MOISTURE_HEIGHT }, plant.x, plant.y);
+    return plant.soilIndex !== expectedSoilIndex;
+  })) {
     throw new Error("Snapshot plant population is invalid");
+  }
+  if ((source.gusts ?? []).length > MAX_GUSTS || (source.rainBursts ?? []).length > MAX_RAIN_BURSTS) {
+    throw new Error("Snapshot transient effects exceed product bounds");
   }
 
   return {
-    version: 2,
+    version: 3,
+    randomModel: RANDOM_MODEL,
     options,
-    seedHash: source.seedHash >>> 0,
-    tick: Math.max(0, Math.floor(source.tick || 0)),
-    time: Math.max(0, Number(source.time) || 0),
-    accumulator: clamp(Number(source.accumulator) || 0, 0, FIXED_DT),
+    seedHash: canonicalSeedHash,
+    tick,
+    time: expectedTime,
+    accumulator: clamp(accumulator, 0, FIXED_DT - EPSILON),
     paused: Boolean(source.paused),
-    eventSerial: Math.max(0, Math.floor(source.eventSerial || 0)),
+    eventSerial: Math.max(0, Math.floor(finiteNumber(source.eventSerial, 0))),
     plants: source.plants.map((plant) => ({ ...plant })),
     moisture: {
       width: MOISTURE_WIDTH,
