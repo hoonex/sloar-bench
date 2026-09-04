@@ -1,0 +1,13 @@
+[hidden] { display: none !important; }
+
+/* JS hit-testing uses a 74px canonical lane height; keep responsive CSS on the same geometry. */
+@media (max-width: 720px) {
+  :root { --lane-height: 74px; }
+  .transport .icon-button,
+  .transport .play-button {
+    min-width: 44px;
+    width: 44px;
+    min-height: 44px;
+  }
+  .clip { top: 10px; height: 54px; }
+}
