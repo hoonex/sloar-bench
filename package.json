@@ -1,8 +1,9 @@
 {
-  "name": "sloar-bench",
+  "name": "loop-studio-ultra-fixture",
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "serve": "node scripts/serve.mjs"
   }
 }

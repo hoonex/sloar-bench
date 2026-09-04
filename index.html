@@ -2,27 +2,45 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sloar Bench</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Tapegrid</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <main class="shell">
-    <h1>Schedule</h1>
-    <div class="switcher" role="group" aria-label="Schedule view">
-      <button data-mode="today" aria-pressed="true">Today</button>
-      <button data-mode="week" aria-pressed="false">Week</button>
-    </div>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Loop workspace</p>
+        <h1>Tapegrid</h1>
+      </div>
+      <div class="transport" aria-label="Transport controls">
+        <button id="play" type="button">Play</button>
+        <button id="stop" type="button">Stop</button>
+        <span id="time-readout">0.00s</span>
+      </div>
+    </header>
 
-    <section id="today-panel">
-      <h2>Today</h2>
-      <p>Math · English · Science</p>
+    <section class="workspace" aria-label="Arrangement workspace">
+      <aside class="track-list" id="track-list"></aside>
+      <div class="timeline-wrap">
+        <div class="ruler" id="ruler"></div>
+        <div class="timeline" id="timeline" tabindex="0" aria-label="Timeline"></div>
+      </div>
     </section>
 
-    <section id="week-panel" hidden>
-      <h2>Week</h2>
-      <p>Mon · Tue · Wed · Thu · Fri</p>
-    </section>
+    <footer class="toolbar">
+      <label>Snap
+        <select id="snap">
+          <option value="0.25">1/4s</option>
+          <option value="0.5" selected>1/2s</option>
+          <option value="1">1s</option>
+        </select>
+      </label>
+      <label>Zoom
+        <input id="zoom" type="range" min="40" max="180" value="80" />
+      </label>
+      <button id="add" type="button">Add clip</button>
+    </footer>
   </main>
   <script type="module" src="./src/app.js"></script>
 </body>
