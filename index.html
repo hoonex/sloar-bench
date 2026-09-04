@@ -3,45 +3,137 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Tapegrid</title>
+  <meta name="theme-color" content="#0b0c0d" />
+  <title>Tapegrid — Loop Arrangement Workspace</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
-      <div>
-        <p class="eyebrow">Loop workspace</p>
-        <h1>Tapegrid</h1>
+      <div class="brand-lockup" aria-label="Tapegrid loop arrangement workspace">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <div>
+          <p class="eyebrow">Loop arrangement workspace</p>
+          <h1>Tapegrid <span class="project-name">Untitled Session</span></h1>
+        </div>
       </div>
+
       <div class="transport" aria-label="Transport controls">
-        <button id="play" type="button">Play</button>
-        <button id="stop" type="button">Stop</button>
-        <span id="time-readout">0.00s</span>
+        <button class="icon-button" id="stop" type="button" aria-label="Stop and return to start" title="Stop · return to 0:00">
+          <span class="stop-icon" aria-hidden="true"></span>
+        </button>
+        <button class="play-button" id="play" type="button" aria-label="Play" aria-pressed="false">
+          <span class="play-icon" aria-hidden="true"></span><span class="transport-label">Play</span>
+        </button>
+        <button class="icon-button" id="pause" type="button" aria-label="Pause" title="Pause">
+          <span class="pause-icon" aria-hidden="true"></span>
+        </button>
+        <output id="time-readout" aria-label="Current playhead time">00:00.000</output>
+      </div>
+
+      <div class="top-actions" aria-label="Project actions">
+        <button id="undo" type="button" title="Undo (Ctrl/Cmd+Z)">Undo</button>
+        <button id="redo" type="button" title="Redo (Ctrl/Cmd+Shift+Z)">Redo</button>
+        <span class="action-divider" aria-hidden="true"></span>
+        <button id="export" type="button">Export JSON</button>
+        <button id="import-trigger" type="button">Import</button>
+        <input id="import-file" type="file" accept="application/json,.json" hidden />
       </div>
     </header>
 
-    <section class="workspace" aria-label="Arrangement workspace">
-      <aside class="track-list" id="track-list"></aside>
-      <div class="timeline-wrap">
-        <div class="ruler" id="ruler"></div>
-        <div class="timeline" id="timeline" tabindex="0" aria-label="Timeline"></div>
+    <section class="control-strip" aria-label="Timeline controls">
+      <div class="control-group tempo-group">
+        <span class="control-kicker">Tempo</span>
+        <strong>120 BPM</strong>
+        <span class="meter">4 / 4</span>
       </div>
-    </section>
-
-    <footer class="toolbar">
-      <label>Snap
+      <div class="control-group snap-group">
+        <label for="snap">Snap</label>
         <select id="snap">
+          <option value="0.125">1/8s</option>
           <option value="0.25">1/4s</option>
           <option value="0.5" selected>1/2s</option>
           <option value="1">1s</option>
         </select>
-      </label>
-      <label>Zoom
-        <input id="zoom" type="range" min="40" max="180" value="80" />
-      </label>
-      <button id="add" type="button">Add clip</button>
+      </div>
+      <div class="control-group loop-group" aria-label="Loop range">
+        <label class="switch-label"><input id="loop-enabled" type="checkbox" /> <span>Loop</span></label>
+        <label>In <input id="loop-start" type="number" min="0" step="0.5" value="4" inputmode="decimal" /></label>
+        <label>Out <input id="loop-end" type="number" min="0" step="0.5" value="12" inputmode="decimal" /></label>
+        <button id="loop-to-playhead" type="button" title="Set loop start to playhead">Set In</button>
+      </div>
+      <div class="control-group zoom-group">
+        <button class="icon-button compact" id="zoom-out" type="button" aria-label="Zoom out">−</button>
+        <label for="zoom">Zoom</label>
+        <input id="zoom" type="range" min="36" max="220" value="88" />
+        <button class="icon-button compact" id="zoom-in" type="button" aria-label="Zoom in">+</button>
+      </div>
+      <div class="control-group add-group">
+        <button class="add-clip-button" id="add" type="button"><span aria-hidden="true">＋</span> Add clip</button>
+      </div>
+    </section>
+
+    <section class="editor" aria-label="Arrangement editor">
+      <div class="arrangement-panel">
+        <div class="track-sidebar" id="track-sidebar" aria-label="Tracks">
+          <div class="sidebar-ruler-cap"><span>TRACKS</span><span id="track-count">4</span></div>
+          <div id="track-list"></div>
+        </div>
+
+        <div class="timeline-viewport" id="timeline-viewport" tabindex="0" aria-label="Timeline. Click or drag the ruler to scrub. Use arrow keys to nudge a selected clip.">
+          <div class="timeline-content" id="timeline-content">
+            <div class="ruler" id="ruler" aria-label="Timeline ruler"></div>
+            <div class="lane-stack" id="lane-stack"></div>
+            <div class="loop-region" id="loop-region" aria-hidden="true"></div>
+            <div class="playhead" id="playhead" aria-hidden="true"><span></span></div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="inspector" id="inspector" aria-label="Clip inspector">
+        <div class="inspector-empty" id="inspector-empty">
+          <span class="empty-wave" aria-hidden="true">▂▅▃▆▂▇▃</span>
+          <h2>No clip selected</h2>
+          <p>Select a clip to edit its name, timing and track. Drag clip edges to trim.</p>
+          <div class="shortcut-hints" aria-label="Keyboard shortcuts">
+            <span><kbd>Del</kbd> remove</span>
+            <span><kbd>⌘D</kbd> duplicate</span>
+            <span><kbd>←</kbd><kbd>→</kbd> nudge</span>
+          </div>
+        </div>
+        <form class="inspector-form" id="inspector-form" hidden>
+          <div class="inspector-heading">
+            <div>
+              <p class="control-kicker">Selected clip</p>
+              <h2 id="inspector-title">Clip</h2>
+            </div>
+            <span class="selection-dot" aria-hidden="true"></span>
+          </div>
+          <label>Name<input id="clip-name" type="text" maxlength="80" autocomplete="off" /></label>
+          <div class="field-grid">
+            <label>Start<input id="clip-start" type="number" min="0" step="0.5" inputmode="decimal" /></label>
+            <label>Duration<input id="clip-duration" type="number" min="0.125" step="0.5" inputmode="decimal" /></label>
+          </div>
+          <label>Track<select id="clip-track"></select></label>
+          <div class="clip-stats">
+            <span><small>END</small><strong id="clip-end">0.00s</strong></span>
+            <span><small>ID</small><strong id="clip-id">—</strong></span>
+          </div>
+          <div class="inspector-actions">
+            <button id="duplicate" type="button">Duplicate</button>
+            <button class="danger" id="delete" type="button">Delete</button>
+          </div>
+        </form>
+      </aside>
+    </section>
+
+    <footer class="statusbar">
+      <span id="status-message" role="status" aria-live="polite">Ready · 0.5s snap</span>
+      <span class="status-center"><span class="status-dot"></span> Local project · no backend</span>
+      <span id="view-readout">88 px/s · 16.0s</span>
     </footer>
   </main>
+
   <script type="module" src="./src/app.js"></script>
 </body>
 </html>
