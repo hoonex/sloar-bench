@@ -3,27 +3,323 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sloar Bench</title>
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#f7f7f4" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#10120f" media="(prefers-color-scheme: dark)" />
+  <meta name="description" content="Relay is a local-first AI workspace for software engineers. Run multiple coding agents on the same task, compare their approaches, and apply only the changes you want." />
+  <title>Relay — Compare coding agents. Keep control.</title>
+  <script>
+    (() => {
+      try {
+        const stored = localStorage.getItem("relay-theme");
+        const theme = stored || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.dataset.theme = theme;
+      } catch {}
+    })();
+  </script>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <main class="shell">
-    <h1>Schedule</h1>
-    <div class="switcher" role="group" aria-label="Schedule view">
-      <button data-mode="today" aria-pressed="true">Today</button>
-      <button data-mode="week" aria-pressed="false">Week</button>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header" data-header>
+    <div class="nav-shell">
+      <a class="brand" href="#top" aria-label="Relay home">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M5 8.5h8.5l4 4H27v11H15.5l-4-4H5v-11Z" fill="currentColor" opacity=".24"/>
+          <path d="M5 8.5h8.5l4 4H27M5 19.5h6.5l4 4H27" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="5" cy="8.5" r="2" fill="currentColor"/><circle cx="27" cy="12.5" r="2" fill="currentColor"/><circle cx="5" cy="19.5" r="2" fill="currentColor"/><circle cx="27" cy="23.5" r="2" fill="currentColor"/>
+        </svg>
+        <span>Relay</span>
+      </a>
+
+      <nav class="desktop-nav" aria-label="Primary navigation">
+        <a href="#workflow">Workflow</a>
+        <a href="#review">Review</a>
+        <a href="#local-first">Local-first</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme">
+          <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M19.07 4.93l-1.42 1.42M6.35 17.65l-1.42 1.42"/></svg>
+          <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.7A8.5 8.5 0 0 1 8.3 4a8.5 8.5 0 1 0 11.7 11.7Z"/></svg>
+        </button>
+        <a class="button button-small button-primary desktop-cta" href="#download">Download Relay</a>
+        <button class="icon-button menu-toggle" type="button" data-menu-toggle aria-label="Open navigation" aria-expanded="false" aria-controls="mobile-menu">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
     </div>
 
-    <section id="today-panel">
-      <h2>Today</h2>
-      <p>Math · English · Science</p>
+    <div class="mobile-menu" id="mobile-menu" data-mobile-menu hidden>
+      <nav aria-label="Mobile navigation">
+        <a href="#workflow">Workflow</a>
+        <a href="#review">Review</a>
+        <a href="#local-first">Local-first</a>
+        <a class="button button-primary" href="#download">Download Relay</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-grid shell">
+        <div class="hero-copy reveal">
+          <div class="eyebrow"><span class="status-dot"></span> Local-first AI workspace for engineers</div>
+          <h1>One task.<br><span>Several agents.</span><br>Your call.</h1>
+          <p class="hero-lede">Relay runs multiple coding agents against the same local repository, puts their approaches and diffs side-by-side, and lets you apply only the changes you trust.</p>
+          <div class="hero-actions">
+            <a class="button button-primary button-large" href="#download">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 20h14"/></svg>
+              Download Relay
+            </a>
+            <a class="button button-ghost button-large" href="#workflow">See the workflow</a>
+          </div>
+          <div class="platform-line" aria-label="Supported platforms">
+            <span>macOS</span><i></i><span>Windows</span><i></i><span>Linux</span>
+          </div>
+        </div>
+
+        <div class="hero-product reveal reveal-delay" aria-label="Relay application preview">
+          <div class="window-glow"></div>
+          <div class="app-window">
+            <div class="titlebar">
+              <div class="traffic"><span></span><span></span><span></span></div>
+              <div class="window-title"><span class="repo-dot"></span> acme/compiler <span class="branch-chip">main</span></div>
+              <div class="titlebar-action">⌘K</div>
+            </div>
+            <div class="app-layout">
+              <aside class="app-sidebar">
+                <div class="sidebar-label">Workspace</div>
+                <div class="sidebar-item active"><span class="mini-icon">⌁</span> Compare</div>
+                <div class="sidebar-item"><span class="mini-icon">↗</span> History</div>
+                <div class="sidebar-divider"></div>
+                <div class="sidebar-label">Task</div>
+                <div class="task-summary">Make parser errors show the source span and recovery hint.</div>
+                <div class="task-meta"><span>3 agents</span><span>·</span><span>local</span></div>
+              </aside>
+              <div class="app-main">
+                <div class="agent-tabs" role="tablist" aria-label="Agent proposals">
+                  <button class="agent-tab active" type="button" role="tab" aria-selected="true" data-agent="a"><span class="agent-avatar">A</span><span><b>Agent A</b><small>4 files · +86 −21</small></span><span class="agent-state">Ready</span></button>
+                  <button class="agent-tab" type="button" role="tab" aria-selected="false" data-agent="b"><span class="agent-avatar">B</span><span><b>Agent B</b><small>3 files · +52 −8</small></span><span class="agent-state">Ready</span></button>
+                  <button class="agent-tab" type="button" role="tab" aria-selected="false" data-agent="c"><span class="agent-avatar">C</span><span><b>Agent C</b><small>5 files · +101 −34</small></span><span class="agent-state">Ready</span></button>
+                </div>
+                <div class="proposal-panel">
+                  <div class="proposal-head">
+                    <div><span class="proposal-kicker">Approach</span><h2 data-agent-title>Preserve parser context through error recovery</h2></div>
+                    <div class="proposal-score"><span class="pulse"></span> Completed in workspace</div>
+                  </div>
+                  <p class="proposal-reasoning" data-agent-reasoning>Keeps the existing parser flow intact and threads a small context object through recovery, so diagnostics gain source spans without changing call-site behavior.</p>
+                  <div class="diff-card">
+                    <div class="diff-toolbar"><span>src/parser/recover.ts</span><div><span class="diff-add">+24</span><span class="diff-del">−6</span></div></div>
+                    <div class="code-grid" aria-label="Proposed code changes">
+                      <div class="code-row context"><span>118</span><code>function recover(token, state) {</code></div>
+                      <div class="code-row removed"><span>119</span><code>- return makeError(token.message)</code></div>
+                      <div class="code-row added"><span>119</span><code>+ const span = sourceSpan(token, state)</code></div>
+                      <div class="code-row added"><span>120</span><code>+ const hint = recoveryHint(state)</code></div>
+                      <div class="code-row added"><span>121</span><code>+ return makeError(token.message, { span, hint })</code></div>
+                      <div class="code-row context"><span>122</span><code>}</code></div>
+                    </div>
+                    <div class="hunk-actions">
+                      <span class="hunk-label" data-review-status>Unreviewed hunk</span>
+                      <div>
+                        <button class="review-button reject" type="button" data-review="reject">Reject</button>
+                        <button class="review-button accept" type="button" data-review="accept">Accept change</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="app-statusbar"><span><i class="green-dot"></i> Working tree unchanged</span><span data-queue-count>0 changes queued</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-rule shell"><span>Git stays the source of truth.</span><span>Your working tree changes only when you choose.</span></div>
     </section>
 
-    <section id="week-panel" hidden>
-      <h2>Week</h2>
-      <p>Mon · Tue · Wed · Thu · Fri</p>
+    <section class="section workflow-section" id="workflow">
+      <div class="shell">
+        <div class="section-heading narrow reveal">
+          <div class="eyebrow">The workflow</div>
+          <h2>Parallelize the thinking.<br>Not the risk.</h2>
+          <p>Relay gives every agent the same brief and an isolated workspace. You compare completed proposals before anything touches your working tree.</p>
+        </div>
+
+        <div class="workflow-grid">
+          <article class="workflow-card reveal">
+            <div class="step-number">01</div>
+            <div class="workflow-visual repo-visual">
+              <div class="repo-card"><span class="folder-icon">⌁</span><div><b>~/code/compiler</b><small>main · clean</small></div><span class="check">✓</span></div>
+              <div class="connector-line"></div>
+              <div class="relay-node"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 8.5h8.5l4 4H27M5 19.5h6.5l4 4H27" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/></svg></div>
+            </div>
+            <h3>Connect a local repository</h3>
+            <p>Point Relay at a Git repo already on your machine. No import, mirror, or mandatory remote connection.</p>
+          </article>
+
+          <article class="workflow-card reveal reveal-delay-1">
+            <div class="step-number">02</div>
+            <div class="workflow-visual fanout-visual">
+              <div class="prompt-pill">Fix parser diagnostics</div>
+              <div class="fan-lines"><span></span><span></span><span></span></div>
+              <div class="agent-nodes"><span>A</span><span>B</span><span>C</span></div>
+            </div>
+            <h3>Fan one task out</h3>
+            <p>Run several coding agents against the same brief. Each explores independently in its own isolated workspace.</p>
+          </article>
+
+          <article class="workflow-card reveal reveal-delay-2">
+            <div class="step-number">03</div>
+            <div class="workflow-visual review-visual">
+              <div class="mini-diff"><span class="line muted"></span><span class="line minus"></span><span class="line plus long"></span><span class="line plus"></span></div>
+              <div class="review-pills"><span>Reject</span><span class="selected">Accept</span></div>
+            </div>
+            <h3>Review, mix, and apply</h3>
+            <p>Compare reasoning summaries and diffs, then accept or reject individual changes. Build the result deliberately.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section review-section" id="review">
+      <div class="shell review-shell">
+        <div class="review-copy reveal">
+          <div class="eyebrow">Review before write</div>
+          <h2>See where the agents disagree.</h2>
+          <p>One agent might preserve the current abstraction. Another may simplify it. A third may find an edge case the others missed. Relay makes those differences inspectable instead of hiding them behind a single generated patch.</p>
+          <ul class="feature-list">
+            <li><span>01</span><div><b>Approach summaries</b><small>Understand the path each agent took before reading every line.</small></div></li>
+            <li><span>02</span><div><b>Side-by-side diffs</b><small>Compare file impact, implementation shape, and change scope.</small></div></li>
+            <li><span>03</span><div><b>Selective apply</b><small>Take a whole proposal or only the hunks that earn their way in.</small></div></li>
+          </ul>
+        </div>
+
+        <div class="compare-board reveal reveal-delay">
+          <div class="compare-board-head">
+            <div><span class="compare-dot"></span> Compare proposals</div>
+            <span>3 complete</span>
+          </div>
+          <div class="compare-columns">
+            <article class="compare-card winner">
+              <div class="compare-agent"><span class="agent-avatar">A</span><div><b>Agent A</b><small>Conservative</small></div><span class="picked">Selected</span></div>
+              <p>Threads diagnostic context through the existing recovery path.</p>
+              <div class="metric-row"><span>Files</span><b>4</b></div>
+              <div class="metric-row"><span>Tests</span><b>+6</b></div>
+              <div class="metric-row"><span>API changes</span><b>0</b></div>
+              <div class="mini-file-list"><span><i>+</i> parser/recover.ts</span><span><i>+</i> errors/diagnostic.ts</span><span><i>+</i> parser.test.ts</span></div>
+            </article>
+            <article class="compare-card">
+              <div class="compare-agent"><span class="agent-avatar">B</span><div><b>Agent B</b><small>Smallest diff</small></div></div>
+              <p>Adds spans at error construction sites with minimal plumbing.</p>
+              <div class="metric-row"><span>Files</span><b>3</b></div>
+              <div class="metric-row"><span>Tests</span><b>+4</b></div>
+              <div class="metric-row"><span>API changes</span><b>2</b></div>
+              <div class="mini-file-list"><span><i>+</i> errors/create.ts</span><span><i>+</i> parser/index.ts</span><span><i>+</i> parser.test.ts</span></div>
+            </article>
+            <article class="compare-card">
+              <div class="compare-agent"><span class="agent-avatar">C</span><div><b>Agent C</b><small>Broader refactor</small></div></div>
+              <p>Centralizes parser diagnostics behind a new reporting layer.</p>
+              <div class="metric-row"><span>Files</span><b>5</b></div>
+              <div class="metric-row"><span>Tests</span><b>+9</b></div>
+              <div class="metric-row"><span>API changes</span><b>1</b></div>
+              <div class="mini-file-list"><span><i>+</i> diagnostics/index.ts</span><span><i>+</i> parser/recover.ts</span><span><i>+</i> parser.test.ts</span></div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section control-section">
+      <div class="shell">
+        <div class="control-intro reveal">
+          <div class="eyebrow">Why Relay</div>
+          <h2>Autonomy is useful.<br>Choice is better.</h2>
+        </div>
+        <div class="control-grid">
+          <div class="control-copy reveal">
+            <p class="big-copy">Giving one agent full control collapses exploration, judgment, and execution into a single path.</p>
+            <p>Relay separates them. Agents explore. You compare. Only then does anything become a real repository change.</p>
+          </div>
+          <div class="control-table reveal reveal-delay">
+            <div class="control-row header"><span></span><b>Single-agent flow</b><b>Relay</b></div>
+            <div class="control-row"><span>Exploration</span><div>One implementation path</div><div><strong>Multiple independent paths</strong></div></div>
+            <div class="control-row"><span>Review point</span><div>After the agent acts</div><div><strong>Before changes are applied</strong></div></div>
+            <div class="control-row"><span>Selection</span><div>Keep or revert the patch</div><div><strong>Accept or reject by change</strong></div></div>
+            <div class="control-row"><span>Repository</span><div>Agent may write directly</div><div><strong>Working tree stays yours</strong></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section local-section" id="local-first">
+      <div class="shell local-grid">
+        <div class="local-visual reveal">
+          <div class="machine-frame">
+            <div class="machine-label"><span class="machine-dot"></span> Your machine</div>
+            <div class="machine-content">
+              <div class="machine-repo"><span class="folder-icon">⌁</span><div><b>Local Git repository</b><small>Source · history · branches</small></div></div>
+              <div class="machine-arrow">↓</div>
+              <div class="machine-relay"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 8.5h8.5l4 4H27M5 19.5h6.5l4 4H27" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/></svg><div><b>Relay workspaces</b><small>Agent A · Agent B · Agent C</small></div></div>
+            </div>
+            <div class="boundary-label"><span></span> Local boundary</div>
+          </div>
+          <div class="optional-remote"><span class="cloud-icon">☁</span><div><b>Remote services</b><small>Only when you explicitly connect one</small></div></div>
+        </div>
+
+        <div class="local-copy reveal reveal-delay">
+          <div class="eyebrow">Local-first by default</div>
+          <h2>Your repo does not need a round trip through someone else’s cloud.</h2>
+          <p>Relay is a native desktop application built around repositories already on your machine. Repository state stays local unless you explicitly connect a remote service.</p>
+          <div class="local-points">
+            <div><span>↳</span><p><b>Native desktop</b><small>Runs on macOS, Windows, and Linux.</small></p></div>
+            <div><span>↳</span><p><b>Local Git workflow</b><small>Works with the repository and branches you already use.</small></p></div>
+            <div><span>↳</span><p><b>Explicit connections</b><small>Remote services are opt-in, not a prerequisite.</small></p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section details-section">
+      <div class="shell">
+        <div class="section-heading narrow reveal">
+          <div class="eyebrow">Built for real code review habits</div>
+          <h2>Fast enough to explore.<br>Structured enough to trust.</h2>
+        </div>
+        <div class="detail-grid">
+          <article class="detail-card reveal"><div class="detail-icon">⌘</div><h3>Keyboard-first navigation</h3><p>Move between agents, files, and review decisions without leaving the flow.</p></article>
+          <article class="detail-card reveal reveal-delay-1"><div class="detail-icon">⑂</div><h3>Isolated agent workspaces</h3><p>Each proposal gets room to work without trampling the others or your current tree.</p></article>
+          <article class="detail-card reveal reveal-delay-2"><div class="detail-icon">±</div><h3>Diff-native review</h3><p>Decisions happen at the level developers already reason about: files, hunks, and changes.</p></article>
+          <article class="detail-card reveal"><div class="detail-icon">↺</div><h3>Git remains the escape hatch</h3><p>Relay complements your existing Git workflow instead of replacing its history and recovery model.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="download-section" id="download">
+      <div class="shell download-shell reveal">
+        <div class="download-orbit orbit-one"></div><div class="download-orbit orbit-two"></div>
+        <div class="download-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 8.5h8.5l4 4H27M5 19.5h6.5l4 4H27" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/><circle cx="5" cy="8.5" r="2" fill="currentColor"/><circle cx="27" cy="12.5" r="2" fill="currentColor"/><circle cx="5" cy="19.5" r="2" fill="currentColor"/><circle cx="27" cy="23.5" r="2" fill="currentColor"/></svg></div>
+        <h2>Keep the agents.<br>Keep the judgment.</h2>
+        <p>Run multiple approaches against your code, compare the tradeoffs, and apply only what earns your confidence.</p>
+        <button class="button button-inverse button-large" type="button" data-download-button>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 20h14"/></svg>
+          <span data-download-label>Download for desktop</span>
+        </button>
+        <div class="download-platforms">macOS · Windows · Linux</div>
+        <div class="download-note" data-download-note aria-live="polite"></div>
+      </div>
     </section>
   </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-grid">
+      <div class="footer-brand"><a class="brand" href="#top"><svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M5 8.5h8.5l4 4H27M5 19.5h6.5l4 4H27" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round"/><circle cx="5" cy="8.5" r="2" fill="currentColor"/><circle cx="27" cy="12.5" r="2" fill="currentColor"/><circle cx="5" cy="19.5" r="2" fill="currentColor"/><circle cx="27" cy="23.5" r="2" fill="currentColor"/></svg><span>Relay</span></a><p>A local-first AI workspace for software engineers.</p></div>
+      <div class="footer-links"><a href="#workflow">Workflow</a><a href="#review">Review</a><a href="#local-first">Local-first</a><a href="#download">Download</a></div>
+      <div class="footer-meta"><span>Native desktop</span><span>Local Git repositories</span><span>macOS · Windows · Linux</span></div>
+    </div>
+    <div class="shell footer-bottom"><span>Relay is a fictional product concept.</span><span>Built for deliberate software engineering.</span></div>
+  </footer>
+
   <script type="module" src="./src/app.js"></script>
 </body>
 </html>
