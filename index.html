@@ -3,27 +3,232 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sloar Bench</title>
+  <meta name="theme-color" content="#f1eddf" />
+  <meta name="description" content="Morrow is lightly sparkling tea in three bright, tea-forward flavors." />
+  <title>Morrow — Lightly Sparkling Tea</title>
   <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./product.css" />
+  <link rel="stylesheet" href="./sections.css" />
+  <link rel="stylesheet" href="./responsive.css" />
 </head>
 <body>
-  <main class="shell">
-    <h1>Schedule</h1>
-    <div class="switcher" role="group" aria-label="Schedule view">
-      <button data-mode="today" aria-pressed="true">Today</button>
-      <button data-mode="week" aria-pressed="false">Week</button>
-    </div>
+  <header class="site-header" data-header>
+    <a class="wordmark" href="#top" aria-label="Morrow home">Morrow</a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">
+      <span>Menu</span>
+      <span class="menu-line" aria-hidden="true"></span>
+    </button>
+    <nav class="primary-nav" id="primary-nav" aria-label="Primary navigation">
+      <a href="#flavors">Flavors</a>
+      <a href="#why-morrow">Tea + sparkle</a>
+      <a href="#story">Our story</a>
+      <a class="nav-cta" href="#flavors">Choose a flavor</a>
+    </nav>
+  </header>
 
-    <section id="today-panel">
-      <h2>Today</h2>
-      <p>Math · English · Science</p>
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title" data-hero data-flavor="yuzu">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="kicker">Lightly sparkling tea · 330 mL</p>
+          <h1 id="hero-title">Tea with<br><span>a little lift.</span></h1>
+          <p class="hero-intro">Real tea character, bright fruit, and a fine line of bubbles. Morrow is a crisp canned drink for the space between sparkling water and iced tea.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#flavors">Explore the flavors</a>
+            <a class="text-link" href="#why-morrow">Why tea + bubbles <span aria-hidden="true">↘</span></a>
+          </div>
+        </div>
+
+        <div class="hero-product" aria-label="Three Morrow slim cans">
+          <div class="orbit orbit-one" aria-hidden="true"></div>
+          <div class="orbit orbit-two" aria-hidden="true"></div>
+          <div class="can-stage" data-can-stage>
+            <article class="can can-yuzu is-active" data-can="yuzu" aria-label="Morrow Yuzu Green Tea can">
+              <div class="can-top" aria-hidden="true"><span></span></div>
+              <div class="can-label">
+                <span class="can-volume">330 mL</span>
+                <strong class="can-word">Morrow</strong>
+                <span class="can-tea">GREEN TEA</span>
+                <span class="can-flavor">YUZU</span>
+                <span class="can-mark can-mark-yuzu" aria-hidden="true"></span>
+                <span class="can-copy">bright citrus<br>+ green tea</span>
+              </div>
+              <div class="can-bottom" aria-hidden="true"></div>
+            </article>
+
+            <article class="can can-peach" data-can="peach" aria-label="Morrow Peach Oolong can">
+              <div class="can-top" aria-hidden="true"><span></span></div>
+              <div class="can-label">
+                <span class="can-volume">330 mL</span>
+                <strong class="can-word">Morrow</strong>
+                <span class="can-tea">OOLONG TEA</span>
+                <span class="can-flavor">PEACH</span>
+                <span class="can-mark can-mark-peach" aria-hidden="true"></span>
+                <span class="can-copy">ripe peach<br>+ roasted oolong</span>
+              </div>
+              <div class="can-bottom" aria-hidden="true"></div>
+            </article>
+
+            <article class="can can-orange" data-can="orange" aria-label="Morrow Blood Orange Black Tea can">
+              <div class="can-top" aria-hidden="true"><span></span></div>
+              <div class="can-label">
+                <span class="can-volume">330 mL</span>
+                <strong class="can-word">Morrow</strong>
+                <span class="can-tea">BLACK TEA</span>
+                <span class="can-flavor">BLOOD<br>ORANGE</span>
+                <span class="can-mark can-mark-orange" aria-hidden="true"></span>
+                <span class="can-copy">bittersweet citrus<br>+ black tea</span>
+              </div>
+              <div class="can-bottom" aria-hidden="true"></div>
+            </article>
+          </div>
+          <p class="product-caption">Three teas. Three fruit notes. One soft sparkle.</p>
+        </div>
+      </div>
+
+      <div class="hero-taster" aria-label="Preview a flavor">
+        <p class="taster-label">What are you in the mood for?</p>
+        <div class="taster-controls" role="group" aria-label="Hero flavor preview">
+          <button type="button" class="flavor-dot is-active" data-flavor-button="yuzu" aria-pressed="true">
+            <span class="dot-swatch swatch-yuzu" aria-hidden="true"></span>
+            <span>Yuzu Green Tea</span>
+          </button>
+          <button type="button" class="flavor-dot" data-flavor-button="peach" aria-pressed="false">
+            <span class="dot-swatch swatch-peach" aria-hidden="true"></span>
+            <span>Peach Oolong</span>
+          </button>
+          <button type="button" class="flavor-dot" data-flavor-button="orange" aria-pressed="false">
+            <span class="dot-swatch swatch-orange" aria-hidden="true"></span>
+            <span>Blood Orange Black Tea</span>
+          </button>
+        </div>
+        <p class="taster-note" data-taster-note aria-live="polite">Bright citrus opens first; green tea gives it a clean, leafy finish.</p>
+      </div>
     </section>
 
-    <section id="week-panel" hidden>
-      <h2>Week</h2>
-      <p>Mon · Tue · Wed · Thu · Fri</p>
+    <section class="manifesto" aria-label="Morrow product statement">
+      <div class="marquee" aria-hidden="true">
+        <span>STEEPED</span><i>+</i><span>SPARKLING</span><i>+</i><span>BRIGHT</span><i>+</i><span>TEA</span><i>+</i>
+      </div>
+      <div class="manifesto-inner">
+        <p class="section-number">01 / The drink</p>
+        <p class="manifesto-copy">Not soda. Not seltzer with a tea name. <strong>Morrow starts with tea,</strong> then adds fruit for clarity and just enough carbonation to lift the finish.</p>
+      </div>
+    </section>
+
+    <section class="flavors" id="flavors" aria-labelledby="flavors-title">
+      <header class="section-head">
+        <p class="section-number">02 / The three</p>
+        <div>
+          <h2 id="flavors-title">Pick your tomorrow.</h2>
+          <p>Each flavor keeps the tea visible, then lets fruit pull it in a different direction.</p>
+        </div>
+      </header>
+
+      <div class="flavor-flight">
+        <article class="flavor-panel flavor-yuzu">
+          <div class="flavor-meta">
+            <span>01</span><span>GREEN TEA</span>
+          </div>
+          <div class="mini-can-wrap" aria-hidden="true">
+            <div class="mini-can mini-yuzu"><span>Morrow</span><i>YUZU</i></div>
+          </div>
+          <div class="flavor-copy">
+            <h3>Yuzu<br>Green Tea</h3>
+            <p class="taste-line">Bright citrus · grassy · clean</p>
+            <p>Yuzu lands high and vivid. Green tea stays cool underneath, making the finish feel brisk rather than candy-sweet.</p>
+          </div>
+        </article>
+
+        <article class="flavor-panel flavor-peach">
+          <div class="flavor-meta">
+            <span>02</span><span>OOLONG TEA</span>
+          </div>
+          <div class="mini-can-wrap" aria-hidden="true">
+            <div class="mini-can mini-peach"><span>Morrow</span><i>PEACH</i></div>
+          </div>
+          <div class="flavor-copy">
+            <h3>Peach<br>Oolong</h3>
+            <p class="taste-line">Ripe fruit · roasted · round</p>
+            <p>Ripe peach brings the soft edge. Roasted oolong keeps it grounded with a toasty, gently floral depth.</p>
+          </div>
+        </article>
+
+        <article class="flavor-panel flavor-orange">
+          <div class="flavor-meta">
+            <span>03</span><span>BLACK TEA</span>
+          </div>
+          <div class="mini-can-wrap" aria-hidden="true">
+            <div class="mini-can mini-orange"><span>Morrow</span><i>BLOOD<br>ORANGE</i></div>
+          </div>
+          <div class="flavor-copy">
+            <h3>Blood Orange<br>Black Tea</h3>
+            <p class="taste-line">Bittersweet · citrus peel · deep</p>
+            <p>Blood orange leans bittersweet and aromatic. Black tea adds structure, making this the darkest, most grown-up pour of the trio.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="tea-sparkle" id="why-morrow" aria-labelledby="tea-sparkle-title">
+      <div class="tea-sparkle-copy">
+        <p class="section-number">03 / The balance</p>
+        <h2 id="tea-sparkle-title">Steeped for character.<br>Sparkled for lift.</h2>
+        <p>Tea gives Morrow its shape: leafy, roasted, brisk, or deep depending on the can. Fine carbonation keeps that flavor moving, so the finish stays light and bright.</p>
+        <a class="button button-ghost" href="#flavors">Meet all three cans</a>
+      </div>
+      <div class="balance-diagram" aria-label="Diagram showing tea and carbonation meeting in the middle">
+        <div class="diagram-half tea-half">
+          <span class="diagram-label">TEA</span>
+          <span class="leaf leaf-a" aria-hidden="true"></span>
+          <span class="leaf leaf-b" aria-hidden="true"></span>
+          <span class="leaf leaf-c" aria-hidden="true"></span>
+        </div>
+        <div class="diagram-core">
+          <span>M</span>
+          <small>lightly<br>sparkling<br>tea</small>
+        </div>
+        <div class="diagram-half sparkle-half">
+          <span class="diagram-label">BUBBLES</span>
+          <span class="bubble bubble-a" aria-hidden="true"></span>
+          <span class="bubble bubble-b" aria-hidden="true"></span>
+          <span class="bubble bubble-c" aria-hidden="true"></span>
+          <span class="bubble bubble-d" aria-hidden="true"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="story" id="story" aria-labelledby="story-title">
+      <div class="story-word" aria-hidden="true">MORROW</div>
+      <div class="story-grid">
+        <p class="section-number">04 / Why Morrow</p>
+        <div>
+          <h2 id="story-title">A drink for the next thing.</h2>
+          <p class="story-lead">Morrow is built around a simple idea: tea can be refreshing without disappearing into sweetness, and sparkling drinks can have more character than flavor alone.</p>
+          <p>So the can stays slim, the bubbles stay light, and each recipe has a real tea personality at its center. Easy enough for an afternoon reset; interesting enough to pour over ice when the day keeps going.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta" aria-labelledby="final-cta-title">
+      <div class="cta-rings" aria-hidden="true"><span></span><span></span><span></span></div>
+      <p class="kicker">Your next can</p>
+      <h2 id="final-cta-title">Which Morrow<br>comes first?</h2>
+      <a class="button button-dark" href="#flavors">Choose your flavor</a>
     </section>
   </main>
+
+  <footer class="site-footer">
+    <a class="footer-wordmark" href="#top">Morrow</a>
+    <p>Lightly sparkling tea.<br>Three flavors · slim 330 mL cans.</p>
+    <nav aria-label="Footer navigation">
+      <a href="#flavors">Flavors</a>
+      <a href="#why-morrow">Tea + sparkle</a>
+      <a href="#story">Our story</a>
+    </nav>
+    <p class="footer-note">Morrow is a fictional beverage brand created for this benchmark.</p>
+  </footer>
+
   <script type="module" src="./src/app.js"></script>
 </body>
 </html>
