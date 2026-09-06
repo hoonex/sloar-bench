@@ -3,27 +3,396 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sloar Bench</title>
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#f5f6f8" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0b0d10" media="(prefers-color-scheme: dark)" />
+  <meta name="description" content="Relay is a local-first AI workspace for software engineers. Run multiple coding agents on the same task, compare their proposals, and apply only the changes you want." />
+  <title>Relay — Compare agents. Keep control.</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <main class="shell">
-    <h1>Schedule</h1>
-    <div class="switcher" role="group" aria-label="Schedule view">
-      <button data-mode="today" aria-pressed="true">Today</button>
-      <button data-mode="week" aria-pressed="false">Week</button>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header" data-header>
+    <div class="nav-wrap">
+      <a class="brand" href="#top" aria-label="Relay home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 28 28" role="img">
+            <path d="M6 5.5h8.3c4.9 0 7.7 2.45 7.7 6.42 0 3.22-1.88 5.34-5.25 6.08L22 22.5h-5.08l-4.58-4.06H10.2v4.06H6V5.5Zm4.2 3.75v5.54h4.15c2.27 0 3.4-.92 3.4-2.79 0-1.84-1.13-2.75-3.4-2.75H10.2Z"/>
+          </svg>
+        </span>
+        <span>Relay</span>
+      </a>
+
+      <nav class="desktop-nav" aria-label="Primary navigation">
+        <a href="#workflow">Workflow</a>
+        <a href="#control">Control</a>
+        <a href="#local-first">Local-first</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="icon-button theme-toggle" type="button" data-theme-toggle aria-label="Switch color theme">
+          <svg class="sun-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/></svg>
+          <svg class="moon-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.2A8.5 8.5 0 1 1 8.8 4a7 7 0 0 0 11.2 11.2Z"/></svg>
+        </button>
+        <a class="button button-small button-primary nav-cta" href="#workflow">See the workflow</a>
+        <button class="icon-button menu-toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="mobile-menu" aria-label="Open navigation">
+          <span></span><span></span>
+        </button>
+      </div>
     </div>
 
-    <section id="today-panel">
-      <h2>Today</h2>
-      <p>Math · English · Science</p>
+    <div class="mobile-menu" id="mobile-menu" data-mobile-menu hidden>
+      <nav aria-label="Mobile navigation">
+        <a href="#workflow">Workflow <span>01</span></a>
+        <a href="#control">Control <span>02</span></a>
+        <a href="#local-first">Local-first <span>03</span></a>
+        <a href="#workflow" class="button button-primary">See the workflow</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-glow hero-glow-one" aria-hidden="true"></div>
+      <div class="hero-glow hero-glow-two" aria-hidden="true"></div>
+      <div class="container hero-grid">
+        <div class="hero-copy reveal">
+          <div class="eyebrow"><span class="status-dot"></span> Local-first AI workspace</div>
+          <h1>Give the task to <em>several</em> agents.<br />Keep the merge to yourself.</h1>
+          <p class="hero-lede">Relay runs multiple coding agents against the same local repository, puts their reasoning and diffs side-by-side, and lets you apply only the changes you trust.</p>
+          <div class="hero-actions">
+            <a class="button button-primary button-large" href="#workflow">
+              See Relay in action
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 6l4 4-4 4"/></svg>
+            </a>
+            <a class="text-link" href="#difference">Why not one agent? <span aria-hidden="true">↓</span></a>
+          </div>
+          <div class="platform-line" aria-label="Supported platforms">
+            <span>Native desktop</span>
+            <span class="platform-separator"></span>
+            <span>macOS</span>
+            <span>Windows</span>
+            <span>Linux</span>
+          </div>
+        </div>
+
+        <div class="hero-product reveal reveal-delay" aria-label="Relay desktop application preview">
+          <div class="app-window">
+            <div class="window-bar">
+              <div class="traffic-lights" aria-hidden="true"><span></span><span></span><span></span></div>
+              <div class="window-title"><span class="repo-icon">⌘</span> relay / compiler</div>
+              <div class="window-status"><span></span> local</div>
+            </div>
+            <div class="app-layout">
+              <aside class="app-sidebar">
+                <div class="sidebar-label">Workspace</div>
+                <div class="repo-row active"><span class="folder-mark"></span><span>compiler</span><span class="branch-name">main</span></div>
+                <div class="sidebar-label tasks-label">Tasks</div>
+                <div class="task-row active"><span class="task-dot"></span><span>Stream parser errors</span></div>
+                <div class="task-row"><span class="task-dot muted"></span><span>Cache AST nodes</span></div>
+                <div class="sidebar-bottom">
+                  <span class="tiny-icon">⌁</span>
+                  <span>3 agents connected</span>
+                </div>
+              </aside>
+
+              <div class="app-main">
+                <div class="task-header">
+                  <div>
+                    <div class="mini-label">Task 014</div>
+                    <strong>Stream parser errors instead of buffering</strong>
+                  </div>
+                  <button type="button" class="mock-run" tabindex="-1">Run 3 agents</button>
+                </div>
+                <div class="agent-tabs" role="tablist" aria-label="Agent proposals">
+                  <button class="agent-tab active" role="tab" aria-selected="true" data-hero-agent="0"><span class="agent-glyph agent-a">A</span><span><b>Ada</b><small>4 files · +48 −19</small></span></button>
+                  <button class="agent-tab" role="tab" aria-selected="false" data-hero-agent="1"><span class="agent-glyph agent-b">B</span><span><b>Lin</b><small>3 files · +31 −12</small></span></button>
+                  <button class="agent-tab" role="tab" aria-selected="false" data-hero-agent="2"><span class="agent-glyph agent-c">C</span><span><b>Max</b><small>5 files · +63 −22</small></span></button>
+                </div>
+                <div class="proposal-summary" data-hero-summary>
+                  <div class="proposal-head">
+                    <span class="confidence-badge">Focused change</span>
+                    <span class="runtime">2m 18s</span>
+                  </div>
+                  <p>Moves error emission into the parser iterator and keeps the existing diagnostics API intact. Adds one regression test around partial reads.</p>
+                  <div class="summary-meta">
+                    <span><i class="meta-icon">↳</i> Preserves public API</span>
+                    <span><i class="meta-icon">✓</i> Tests included</span>
+                  </div>
+                </div>
+                <div class="mini-diff" data-hero-diff>
+                  <div class="diff-file"><span>src/parser/stream.ts</span><span class="diff-stats"><i>+24</i> <b>−8</b></span></div>
+                  <div class="code-line context"><span>91</span><code>while (cursor.hasNext()) {</code></div>
+                  <div class="code-line removed"><span>92</span><code>  errors.push(parseError(cursor));</code></div>
+                  <div class="code-line added"><span>92</span><code>  yield diagnostics.from(cursor);</code></div>
+                  <div class="code-line added"><span>93</span><code>  cursor.advance();</code></div>
+                  <div class="code-line context"><span>94</span><code>}</code></div>
+                </div>
+              </div>
+            </div>
+            <div class="window-footer">
+              <span><i class="green-dot"></i> Working tree unchanged</span>
+              <span>⌥⌘R Compare</span>
+            </div>
+          </div>
+          <div class="floating-note note-top"><span class="note-kicker">Agent B</span><strong>Smallest diff</strong><small>3 files touched</small></div>
+          <div class="floating-note note-bottom"><span class="note-kicker">Repository</span><strong>Nothing applied yet</strong><small>You decide what lands</small></div>
+        </div>
+      </div>
+      <div class="hero-rule" aria-hidden="true"><span>RELAY / LOCAL WORKSPACE</span><span>COMPARE BEFORE APPLY</span></div>
     </section>
 
-    <section id="week-panel" hidden>
-      <h2>Week</h2>
-      <p>Mon · Tue · Wed · Thu · Fri</p>
+    <section class="section section-intro" id="difference">
+      <div class="container intro-grid">
+        <div class="section-number">01 / The idea</div>
+        <div>
+          <p class="section-kicker">One task. More than one answer.</p>
+          <h2>AI is useful at generating changes.<br />Judgment is still the scarce resource.</h2>
+        </div>
+        <div class="intro-side">
+          <p>A single autonomous agent turns one model's assumptions into repository state. Relay inserts a review layer before that happens.</p>
+          <p>You see competing approaches while they are still proposals—then choose a whole solution, mix individual changes, or apply nothing.</p>
+        </div>
+      </div>
+
+      <div class="container compare-strip">
+        <article class="compare-card compare-card-agent">
+          <div class="compare-card-top"><span>Single-agent loop</span><span class="mono">AUTO</span></div>
+          <div class="single-flow" aria-label="Task flows directly through one agent to repository">
+            <div class="flow-node">Task</div><div class="flow-arrow">→</div><div class="flow-node agent-node">Agent</div><div class="flow-arrow">→</div><div class="flow-node repo-node">Repo</div>
+          </div>
+          <p>One interpretation becomes edits. Review happens after the agent has already acted.</p>
+        </article>
+        <article class="compare-card compare-card-relay">
+          <div class="compare-card-top"><span>Relay loop</span><span class="mono accent-text">REVIEW</span></div>
+          <div class="relay-flow" aria-label="Task branches to three agents, then converges at developer review before repository">
+            <div class="flow-node task-node">Task</div>
+            <div class="flow-stack">
+              <span class="mini-agent a">A</span><span class="mini-agent b">B</span><span class="mini-agent c">C</span>
+            </div>
+            <div class="flow-node review-node">You compare</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node repo-node">Repo</div>
+          </div>
+          <p>Several interpretations stay isolated as proposals. Repository state changes only after your selection.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section workflow-section" id="workflow">
+      <div class="container">
+        <div class="section-heading">
+          <div class="section-number">02 / Workflow</div>
+          <div>
+            <p class="section-kicker">From prompt to patch, with checkpoints.</p>
+            <h2>Parallelize exploration.<br />Centralize the decision.</h2>
+          </div>
+        </div>
+
+        <div class="workflow-stage">
+          <div class="workflow-rail" aria-label="Relay workflow steps">
+            <button type="button" class="workflow-step active" data-workflow-step="0" aria-pressed="true">
+              <span class="step-index">01</span><span><b>Connect</b><small>Choose a local Git repository.</small></span>
+            </button>
+            <button type="button" class="workflow-step" data-workflow-step="1" aria-pressed="false">
+              <span class="step-index">02</span><span><b>Dispatch</b><small>Send one task to several agents.</small></span>
+            </button>
+            <button type="button" class="workflow-step" data-workflow-step="2" aria-pressed="false">
+              <span class="step-index">03</span><span><b>Compare</b><small>Inspect reasoning, files, and diffs.</small></span>
+            </button>
+            <button type="button" class="workflow-step" data-workflow-step="3" aria-pressed="false">
+              <span class="step-index">04</span><span><b>Apply</b><small>Accept only the changes you want.</small></span>
+            </button>
+          </div>
+
+          <div class="workflow-visual" data-workflow-visual>
+            <div class="workflow-screen screen-connect" data-workflow-panel="0">
+              <div class="screen-top"><span>Open repository</span><span class="key-hint">⌘ O</span></div>
+              <div class="repo-picker">
+                <div class="picker-icon">⌘</div>
+                <div><strong>parser-kit</strong><span>~/Code/parser-kit</span></div>
+                <span class="branch-chip">main</span>
+              </div>
+              <div class="repo-checks">
+                <span><i>✓</i> Git repository</span><span><i>✓</i> Clean working tree</span><span><i>✓</i> 642 files indexed locally</span>
+              </div>
+              <button type="button" tabindex="-1" class="screen-action">Open workspace <span>↗</span></button>
+            </div>
+
+            <div class="workflow-screen screen-dispatch" data-workflow-panel="1" hidden>
+              <div class="screen-top"><span>New task</span><span class="local-chip"><i></i> Local context</span></div>
+              <div class="prompt-box">
+                <div class="prompt-label">Task</div>
+                <p>Make parser errors stream as they are produced instead of buffering the whole list. Keep the public diagnostics API compatible.</p>
+              </div>
+              <div class="agent-select-grid">
+                <div class="agent-select selected"><span class="agent-glyph agent-a">A</span><span><b>Ada</b><small>Agent profile 01</small></span><i>✓</i></div>
+                <div class="agent-select selected"><span class="agent-glyph agent-b">B</span><span><b>Lin</b><small>Agent profile 02</small></span><i>✓</i></div>
+                <div class="agent-select selected"><span class="agent-glyph agent-c">C</span><span><b>Max</b><small>Agent profile 03</small></span><i>✓</i></div>
+              </div>
+              <div class="dispatch-line"><span>Same repository snapshot · Same prompt</span><button type="button" tabindex="-1">Run 3 agents</button></div>
+            </div>
+
+            <div class="workflow-screen screen-compare" data-workflow-panel="2" hidden>
+              <div class="screen-top"><span>Compare proposals</span><span class="key-hint">3 completed</span></div>
+              <div class="proposal-grid">
+                <article><div class="proposal-agent"><span class="agent-glyph agent-a">A</span><b>Ada</b><span class="proposal-score">Focused</span></div><h3>Iterator-level emission</h3><p>Small surface-area change. Keeps diagnostics API and adjusts the stream parser.</p><div class="proposal-files"><span>4 files</span><span class="plus">+48</span><span class="minus">−19</span></div></article>
+                <article class="highlight"><div class="proposal-agent"><span class="agent-glyph agent-b">B</span><b>Lin</b><span class="proposal-score">Smallest</span></div><h3>Lazy diagnostic source</h3><p>Wraps the existing buffer with a lazy source. Fewer edits, but adds an abstraction.</p><div class="proposal-files"><span>3 files</span><span class="plus">+31</span><span class="minus">−12</span></div></article>
+                <article><div class="proposal-agent"><span class="agent-glyph agent-c">C</span><b>Max</b><span class="proposal-score">Broader</span></div><h3>Streaming pipeline</h3><p>Refactors parsing stages around async generators. Clean model, larger migration.</p><div class="proposal-files"><span>5 files</span><span class="plus">+63</span><span class="minus">−22</span></div></article>
+              </div>
+            </div>
+
+            <div class="workflow-screen screen-apply" data-workflow-panel="3" hidden>
+              <div class="screen-top"><span>Review selected changes</span><span class="apply-count"><b data-accepted-count>2</b> of 3 accepted</span></div>
+              <div class="change-list">
+                <div class="change-row" data-change data-state="accepted">
+                  <div><span class="file-kind">TS</span><span><b>src/parser/stream.ts</b><small>Stream errors from iterator</small></span></div>
+                  <div class="change-actions"><button type="button" data-reject>Reject</button><button type="button" class="accept active" data-accept>Accepted</button></div>
+                </div>
+                <div class="change-row" data-change data-state="accepted">
+                  <div><span class="file-kind">TS</span><span><b>src/diagnostics/index.ts</b><small>Preserve public API adapter</small></span></div>
+                  <div class="change-actions"><button type="button" data-reject>Reject</button><button type="button" class="accept active" data-accept>Accepted</button></div>
+                </div>
+                <div class="change-row" data-change data-state="rejected">
+                  <div><span class="file-kind test-kind">TEST</span><span><b>test/parser/perf.test.ts</b><small>Optional benchmark fixture</small></span></div>
+                  <div class="change-actions"><button type="button" class="reject active" data-reject>Rejected</button><button type="button" class="accept" data-accept>Accept</button></div>
+                </div>
+              </div>
+              <div class="apply-footer"><span><i class="green-dot"></i> Working tree unchanged until apply</span><button type="button" class="apply-button" data-apply-changes>Apply 2 changes</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section control-section" id="control">
+      <div class="container control-grid">
+        <div class="control-copy">
+          <div class="section-number">03 / Review surface</div>
+          <p class="section-kicker">Understand the tradeoff, not just the patch.</p>
+          <h2>Reasoning summaries beside the actual diff.</h2>
+          <p>Relay keeps every proposal legible at two levels: the agent's approach and the concrete repository changes. Compare intent, scope, touched files, and implementation before accepting anything.</p>
+          <ul class="feature-list">
+            <li><span>01</span><div><b>Side-by-side proposals</b><small>Same task, different implementation strategies.</small></div></li>
+            <li><span>02</span><div><b>Change-level decisions</b><small>Accept or reject files and hunks independently.</small></div></li>
+            <li><span>03</span><div><b>Repository-aware context</b><small>Every run starts from the same local Git snapshot.</small></div></li>
+          </ul>
+        </div>
+
+        <div class="review-mockup">
+          <div class="review-toolbar">
+            <div><span class="agent-glyph agent-a">A</span><strong>Ada / Iterator emission</strong></div>
+            <div class="review-pager"><button type="button" tabindex="-1">←</button><span>2 / 4</span><button type="button" tabindex="-1">→</button></div>
+          </div>
+          <div class="review-body">
+            <div class="reasoning-pane">
+              <div class="pane-title"><span>Reasoning summary</span><span class="mono">01:42</span></div>
+              <div class="reason-block"><span class="reason-index">A</span><div><strong>Keep the public boundary stable.</strong><p>The diagnostics collection can remain array-like for callers while the parser itself yields each diagnostic as it appears.</p></div></div>
+              <div class="reason-block"><span class="reason-index">B</span><div><strong>Move backpressure into the iterator.</strong><p>This avoids accumulating parser errors and keeps cancellation behavior close to the cursor loop.</p></div></div>
+              <div class="reason-block"><span class="reason-index">C</span><div><strong>Test partial reads.</strong><p>The regression case stops after the first error to verify the parser does not precompute the rest.</p></div></div>
+            </div>
+            <div class="diff-pane">
+              <div class="pane-title"><span>src/parser/stream.ts</span><span class="diff-stats"><i>+24</i> <b>−8</b></span></div>
+              <div class="large-code">
+                <div class="code-row"><span>88</span><span></span><code>export function* parse(cursor) {</code></div>
+                <div class="code-row"><span>89</span><span></span><code>  while (cursor.hasNext()) {</code></div>
+                <div class="code-row remove"><span>90</span><span>−</span><code>    const next = parseChunk(cursor);</code></div>
+                <div class="code-row remove"><span>91</span><span>−</span><code>    errors.push(...next.errors);</code></div>
+                <div class="code-row add"><span>90</span><span>+</span><code>    const chunk = parseChunk(cursor);</code></div>
+                <div class="code-row add"><span>91</span><span>+</span><code>    for (const error of chunk.errors) {</code></div>
+                <div class="code-row add"><span>92</span><span>+</span><code>      yield diagnostics.from(error);</code></div>
+                <div class="code-row add"><span>93</span><span>+</span><code>    }</code></div>
+                <div class="code-row"><span>94</span><span></span><code>    cursor.advance();</code></div>
+                <div class="code-row"><span>95</span><span></span><code>  }</code></div>
+                <div class="code-row"><span>96</span><span></span><code>}</code></div>
+              </div>
+            </div>
+          </div>
+          <div class="review-footer"><span>Proposal only · no files modified</span><div><button type="button" tabindex="-1" class="outline-danger">Reject file</button><button type="button" tabindex="-1" class="outline-accept">Accept file</button></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section local-section" id="local-first">
+      <div class="container">
+        <div class="local-panel">
+          <div class="local-copy">
+            <div class="section-number light-number">04 / Local-first</div>
+            <p class="section-kicker light-kicker">Your repository starts—and stays—on your machine.</p>
+            <h2>Local is the default state,<br />not a privacy mode.</h2>
+            <p>Relay works directly with local Git repositories. Repository state remains local unless you explicitly connect a remote service. You choose the agent connections and the boundaries they receive.</p>
+            <div class="local-points">
+              <div><span class="local-icon">⌂</span><span><b>Native desktop app</b><small>Runs where your code already lives.</small></span></div>
+              <div><span class="local-icon">⌘</span><span><b>Local Git state</b><small>Proposals stay separate from your working tree.</small></span></div>
+              <div><span class="local-icon">↗</span><span><b>Explicit remotes</b><small>Nothing remote until you connect it.</small></span></div>
+            </div>
+          </div>
+
+          <div class="local-diagram" aria-label="Diagram showing Relay on a local machine with optional explicit remote agent connections">
+            <div class="machine-frame">
+              <div class="machine-label"><span>YOUR MACHINE</span><span class="secure-dot"></span></div>
+              <div class="machine-content">
+                <div class="repo-cube"><span class="cube-icon">⌘</span><strong>Git repository</strong><small>~/Code/parser-kit</small></div>
+                <div class="local-connection"><i></i><span>local context</span><i></i></div>
+                <div class="relay-core"><span class="brand-mark small-mark"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 5.5h8.3c4.9 0 7.7 2.45 7.7 6.42 0 3.22-1.88 5.34-5.25 6.08L22 22.5h-5.08l-4.58-4.06H10.2v4.06H6V5.5Zm4.2 3.75v5.54h4.15c2.27 0 3.4-.92 3.4-2.79 0-1.84-1.13-2.75-3.4-2.75H10.2Z"/></svg></span><strong>Relay</strong><small>proposal workspace</small></div>
+                <div class="proposal-bins"><span>Agent A<br/><b>proposal</b></span><span>Agent B<br/><b>proposal</b></span><span>Agent C<br/><b>proposal</b></span></div>
+              </div>
+            </div>
+            <div class="remote-zone">
+              <div class="remote-label">ONLY WHEN CONNECTED</div>
+              <div class="remote-agent"><span>A</span><b>Agent service</b><small>explicit connection</small></div>
+              <div class="remote-agent"><span>B</span><b>Agent service</b><small>explicit connection</small></div>
+              <div class="remote-agent"><span>C</span><b>Agent service</b><small>explicit connection</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section details-section">
+      <div class="container">
+        <div class="section-heading compact-heading">
+          <div class="section-number">05 / Product details</div>
+          <div><p class="section-kicker">Built for daily repository work.</p><h2>The controls you expect<br />from a developer tool.</h2></div>
+        </div>
+        <div class="detail-grid">
+          <article class="detail-card"><span class="detail-icon">⌁</span><h3>Parallel agent runs</h3><p>Give several coding agents the exact same task and repository snapshot, then compare what each one chooses to do.</p><div class="detail-foot">Same task · same context</div></article>
+          <article class="detail-card"><span class="detail-icon">≋</span><h3>Diff-first review</h3><p>Inspect files, additions, deletions, and reasoning summaries without letting a proposal silently mutate your working tree.</p><div class="detail-foot">Review before mutation</div></article>
+          <article class="detail-card"><span class="detail-icon">✓</span><h3>Selective application</h3><p>Choose a complete proposal or take only the individual changes that make sense for your implementation.</p><div class="detail-foot">Accept · reject · mix</div></article>
+          <article class="detail-card"><span class="detail-icon">⌘</span><h3>Git-native workspace</h3><p>Connect the repository on disk. Relay treats your current Git state as the source of truth for every proposal.</p><div class="detail-foot">Local repositories</div></article>
+          <article class="detail-card"><span class="detail-icon">◐</span><h3>Native on your OS</h3><p>A desktop workspace designed around code review density, keyboard navigation, and long-running agent tasks.</p><div class="detail-foot">macOS · Windows · Linux</div></article>
+          <article class="detail-card detail-card-accent"><span class="detail-icon">→</span><h3>Keep the final say</h3><p>The useful part of autonomy without surrendering repository control. Let agents explore; decide what becomes code.</p><a href="#workflow">See the four-step workflow <span>↗</span></a></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="closing-section">
+      <div class="closing-orbit orbit-one" aria-hidden="true"></div>
+      <div class="closing-orbit orbit-two" aria-hidden="true"></div>
+      <div class="container closing-inner">
+        <div class="closing-mark"><span class="brand-mark large-mark"><svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 5.5h8.3c4.9 0 7.7 2.45 7.7 6.42 0 3.22-1.88 5.34-5.25 6.08L22 22.5h-5.08l-4.58-4.06H10.2v4.06H6V5.5Zm4.2 3.75v5.54h4.15c2.27 0 3.4-.92 3.4-2.79 0-1.84-1.13-2.75-3.4-2.75H10.2Z"/></svg></span></div>
+        <p class="section-kicker">More agents. Less blind trust.</p>
+        <h2>Compare the work<br />before it becomes yours.</h2>
+        <p>Relay gives coding agents room to explore while keeping repository decisions in your hands.</p>
+        <a class="button button-primary button-large" href="#workflow">Explore the Relay workflow <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 6l4 4-4 4"/></svg></a>
+        <div class="closing-platforms"><span>macOS</span><i></i><span>Windows</span><i></i><span>Linux</span></div>
+      </div>
     </section>
   </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 28 28"><path d="M6 5.5h8.3c4.9 0 7.7 2.45 7.7 6.42 0 3.22-1.88 5.34-5.25 6.08L22 22.5h-5.08l-4.58-4.06H10.2v4.06H6V5.5Zm4.2 3.75v5.54h4.15c2.27 0 3.4-.92 3.4-2.79 0-1.84-1.13-2.75-3.4-2.75H10.2Z"/></svg></span><span>Relay</span></a>
+        <p>A local-first AI workspace for software engineers.</p>
+      </div>
+      <div class="footer-links"><strong>Product</strong><a href="#workflow">Workflow</a><a href="#control">Review</a><a href="#local-first">Local-first</a></div>
+      <div class="footer-links"><strong>Platform</strong><span>macOS</span><span>Windows</span><span>Linux</span></div>
+      <div class="footer-meta"><span>© <span data-year></span> Relay</span><span>Fictional product concept</span></div>
+    </div>
+  </footer>
+
   <script type="module" src="./src/app.js"></script>
 </body>
 </html>
