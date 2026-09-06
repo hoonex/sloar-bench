@@ -3,27 +3,244 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sloar Bench</title>
+  <meta name="theme-color" content="#f1eee4" />
+  <meta name="description" content="Morrow is lightly sparkling tea in three bright, layered flavors: Yuzu Green Tea, Peach Oolong, and Blood Orange Black Tea." />
+  <title>Morrow — Lightly Sparkling Tea</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <main class="shell">
-    <h1>Schedule</h1>
-    <div class="switcher" role="group" aria-label="Schedule view">
-      <button data-mode="today" aria-pressed="true">Today</button>
-      <button data-mode="week" aria-pressed="false">Week</button>
-    </div>
+  <div class="site-shell">
+    <header class="site-header" data-header>
+      <a class="wordmark" href="#top" aria-label="Morrow home">MORROW</a>
+      <nav class="desktop-nav" aria-label="Primary navigation">
+        <a href="#flavors">Flavors</a>
+        <a href="#inside">Inside the can</a>
+        <a href="#story">Our story</a>
+      </nav>
+      <a class="header-cta" href="#flavors">Find your flavor <span aria-hidden="true">↘</span></a>
+      <button class="menu-button" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-button>
+        <span class="menu-label">Menu</span><span class="menu-icon" aria-hidden="true"></span>
+      </button>
+      <nav class="mobile-nav" id="mobile-menu" aria-label="Mobile navigation" hidden data-mobile-nav>
+        <a href="#flavors">Flavors</a>
+        <a href="#inside">Inside the can</a>
+        <a href="#story">Our story</a>
+        <a class="mobile-nav-cta" href="#flavors">Find your flavor <span>↘</span></a>
+      </nav>
+    </header>
 
-    <section id="today-panel">
-      <h2>Today</h2>
-      <p>Math · English · Science</p>
-    </section>
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy reveal">
+          <p class="eyebrow"><span class="eyebrow-dot"></span> Lightly sparkling tea · 330 mL</p>
+          <h1 id="hero-title">Tea,<br><em>with lift.</em></h1>
+          <p class="hero-dek">Clean tea character, juicy fruit, and a fine sparkle that keeps every sip moving.</p>
+          <div class="hero-actions">
+            <a class="button button-dark" href="#flavors">Explore the flavors <span aria-hidden="true">↓</span></a>
+            <p class="hero-note">Brewed for the space between iced tea and sparkling water.</p>
+          </div>
+        </div>
 
-    <section id="week-panel" hidden>
-      <h2>Week</h2>
-      <p>Mon · Tue · Wed · Thu · Fri</p>
-    </section>
-  </main>
+        <div class="hero-art" aria-label="Three Morrow slim cans: Yuzu Green Tea, Peach Oolong, and Blood Orange Black Tea">
+          <div class="sun-disc" aria-hidden="true"></div>
+          <div class="orbit orbit-one" aria-hidden="true"></div>
+          <div class="orbit orbit-two" aria-hidden="true"></div>
+          <div class="bubble bubble-1" aria-hidden="true"></div>
+          <div class="bubble bubble-2" aria-hidden="true"></div>
+          <div class="bubble bubble-3" aria-hidden="true"></div>
+          <div class="hero-cans">
+            <div class="can-wrap can-wrap-yuzu">
+              <div class="can can-yuzu" aria-hidden="true">
+                <div class="can-top"><span></span></div>
+                <div class="can-face">
+                  <span class="can-volume">330 mL</span>
+                  <span class="can-mark">M</span>
+                  <span class="can-name">MORROW</span>
+                  <span class="can-flavor">Yuzu<br>Green Tea</span>
+                  <span class="can-spark">lightly sparkling</span>
+                </div>
+                <div class="can-bottom"></div>
+              </div>
+            </div>
+            <div class="can-wrap can-wrap-peach">
+              <div class="can can-peach" aria-hidden="true">
+                <div class="can-top"><span></span></div>
+                <div class="can-face">
+                  <span class="can-volume">330 mL</span>
+                  <span class="can-mark">M</span>
+                  <span class="can-name">MORROW</span>
+                  <span class="can-flavor">Peach<br>Oolong</span>
+                  <span class="can-spark">lightly sparkling</span>
+                </div>
+                <div class="can-bottom"></div>
+              </div>
+            </div>
+            <div class="can-wrap can-wrap-orange">
+              <div class="can can-orange" aria-hidden="true">
+                <div class="can-top"><span></span></div>
+                <div class="can-face">
+                  <span class="can-volume">330 mL</span>
+                  <span class="can-mark">M</span>
+                  <span class="can-name">MORROW</span>
+                  <span class="can-flavor">Blood Orange<br>Black Tea</span>
+                  <span class="can-spark">lightly sparkling</span>
+                </div>
+                <div class="can-bottom"></div>
+              </div>
+            </div>
+          </div>
+          <p class="art-caption"><span>01</span> Three teas. Three fruits. One fine fizz.</p>
+        </div>
+      </section>
+
+      <section class="ticker" aria-label="Morrow product qualities">
+        <div class="ticker-track">
+          <span>BREWED TEA</span><i>✦</i><span>JUICY FRUIT</span><i>✦</i><span>FINE BUBBLES</span><i>✦</i><span>330 mL SLIM CAN</span><i>✦</i><span>BREWED TEA</span><i>✦</i><span>JUICY FRUIT</span><i>✦</i><span>FINE BUBBLES</span><i>✦</i><span>330 mL SLIM CAN</span><i>✦</i>
+        </div>
+      </section>
+
+      <section class="flavors section" id="flavors" aria-labelledby="flavors-title">
+        <div class="section-heading reveal">
+          <p class="section-number">01 — The lineup</p>
+          <h2 id="flavors-title">Pick your <em>tomorrow.</em></h2>
+          <p>Each Morrow starts with tea, then turns in a different direction. Choose a can to pull its flavor into focus.</p>
+        </div>
+
+        <div class="flavor-layout">
+          <div class="flavor-list reveal" role="list" aria-label="Morrow flavors">
+            <button class="flavor-row is-active" type="button" data-flavor="yuzu" aria-pressed="true">
+              <span class="flavor-index">01</span>
+              <span class="flavor-name"><strong>Yuzu</strong><small>Green Tea</small></span>
+              <span class="flavor-notes">bright citrus · green tea</span>
+              <span class="flavor-arrow" aria-hidden="true">↗</span>
+            </button>
+            <button class="flavor-row" type="button" data-flavor="peach" aria-pressed="false">
+              <span class="flavor-index">02</span>
+              <span class="flavor-name"><strong>Peach</strong><small>Oolong</small></span>
+              <span class="flavor-notes">ripe peach · roasted oolong</span>
+              <span class="flavor-arrow" aria-hidden="true">↗</span>
+            </button>
+            <button class="flavor-row" type="button" data-flavor="orange" aria-pressed="false">
+              <span class="flavor-index">03</span>
+              <span class="flavor-name"><strong>Blood Orange</strong><small>Black Tea</small></span>
+              <span class="flavor-notes">bittersweet citrus · black tea</span>
+              <span class="flavor-arrow" aria-hidden="true">↗</span>
+            </button>
+          </div>
+
+          <div class="flavor-stage reveal" data-flavor-stage data-theme="yuzu" aria-live="polite">
+            <div class="stage-shape stage-shape-a" aria-hidden="true"></div>
+            <div class="stage-shape stage-shape-b" aria-hidden="true"></div>
+            <div class="stage-can" aria-hidden="true">
+              <div class="can can-feature">
+                <div class="can-top"><span></span></div>
+                <div class="can-face">
+                  <span class="can-volume">330 mL</span>
+                  <span class="can-mark">M</span>
+                  <span class="can-name">MORROW</span>
+                  <span class="can-flavor" data-stage-can-flavor>Yuzu<br>Green Tea</span>
+                  <span class="can-spark">lightly sparkling</span>
+                </div>
+                <div class="can-bottom"></div>
+              </div>
+            </div>
+            <div class="stage-copy">
+              <p class="stage-kicker" data-stage-kicker>GREEN TEA / CITRUS</p>
+              <h3 data-stage-title>Sharp sun,<br>soft tea.</h3>
+              <p data-stage-description>Yuzu lands bright and aromatic, while green tea keeps the finish fresh and composed.</p>
+              <div class="taste-scale" aria-label="Taste profile">
+                <div><span>Bright</span><i><b data-scale-bright style="width: 88%"></b></i></div>
+                <div><span>Roasted</span><i><b data-scale-roasted style="width: 22%"></b></i></div>
+                <div><span>Citrus</span><i><b data-scale-citrus style="width: 92%"></b></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="inside section" id="inside" aria-labelledby="inside-title">
+        <div class="inside-intro reveal">
+          <p class="section-number light">02 — Inside the can</p>
+          <h2 id="inside-title">Tea gives it depth.<br><em>Bubbles give it air.</em></h2>
+          <p>Morrow is built around a simple tension: the structure of brewed tea against the quick, clean sensation of carbonation.</p>
+        </div>
+        <div class="process-grid">
+          <article class="process-card reveal">
+            <span class="process-step">A</span>
+            <div class="process-icon tea-icon" aria-hidden="true"><i></i><i></i><i></i></div>
+            <h3>Brew</h3>
+            <p>Tea is the backbone—green, oolong, or black—giving each flavor its own shape and finish.</p>
+          </article>
+          <article class="process-card reveal">
+            <span class="process-step">B</span>
+            <div class="process-icon fruit-icon" aria-hidden="true"><i></i></div>
+            <h3>Brighten</h3>
+            <p>Fruit moves through the tea instead of covering it: yuzu, peach, or blood orange in clear focus.</p>
+          </article>
+          <article class="process-card reveal">
+            <span class="process-step">C</span>
+            <div class="process-icon fizz-icon" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <h3>Lift</h3>
+            <p>A light sparkle keeps the drink crisp and lively, with smaller bubbles rather than a heavy soda fizz.</p>
+          </article>
+        </div>
+        <div class="inside-footer reveal">
+          <span>TEA</span><b>+</b><span>FRUIT</span><b>+</b><span>SPARKLE</span><b>=</b><span>MORROW</span>
+        </div>
+      </section>
+
+      <section class="story section" id="story" aria-labelledby="story-title">
+        <div class="story-art reveal" aria-hidden="true">
+          <div class="story-label">MORROW<br><span>FOR LATER / FOR NOW</span></div>
+          <div class="story-ring"></div>
+          <div class="story-can-mini">
+            <div class="can can-yuzu">
+              <div class="can-top"><span></span></div>
+              <div class="can-face">
+                <span class="can-mark">M</span><span class="can-name">MORROW</span><span class="can-flavor">Yuzu<br>Green Tea</span>
+              </div>
+              <div class="can-bottom"></div>
+            </div>
+          </div>
+          <div class="story-burst">✦</div>
+          <span class="story-word story-word-one">sip</span>
+          <span class="story-word story-word-two">slow</span>
+        </div>
+        <div class="story-copy reveal">
+          <p class="section-number">03 — The story</p>
+          <h2 id="story-title">A drink for the next little thing.</h2>
+          <p class="story-lead">Morrow was imagined for afternoons that refuse a label: too late for coffee, too early for dinner, exactly right for something cold.</p>
+          <p>So we made tea less still. Familiar leaves, vivid fruit, a flicker of carbonation, and a slim can you can take wherever the day turns next.</p>
+          <p class="story-signoff">No ceremony required. <em>Just open tomorrow.</em></p>
+        </div>
+      </section>
+
+      <section class="cta-panel section" aria-labelledby="cta-title">
+        <div class="cta-copy reveal">
+          <p class="section-number">04 — Choose three</p>
+          <h2 id="cta-title">Meet the whole <em>trio.</em></h2>
+          <p>Bright yuzu. Plush peach. Bittersweet blood orange. Start with the one that sounds most like your afternoon.</p>
+          <a class="button button-light" href="#flavors">Find your flavor <span aria-hidden="true">↑</span></a>
+        </div>
+        <div class="cta-cans reveal" aria-hidden="true">
+          <div class="mini-can mini-yuzu">YUZU</div>
+          <div class="mini-can mini-peach">PEACH</div>
+          <div class="mini-can mini-orange">BLOOD<br>ORANGE</div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-mark">MORROW</div>
+      <div class="footer-grid">
+        <div><span>Lightly sparkling tea</span><span>330 mL slim cans</span></div>
+        <div><a href="#flavors">Flavors</a><a href="#inside">Inside the can</a><a href="#story">Our story</a></div>
+        <div><span>Yuzu Green Tea</span><span>Peach Oolong</span><span>Blood Orange Black Tea</span></div>
+      </div>
+      <div class="footer-bottom"><span>© 2026 Morrow. A fictional beverage brand.</span><a href="#top">Back to top ↑</a></div>
+    </footer>
+  </div>
+
   <script type="module" src="./src/app.js"></script>
 </body>
 </html>
